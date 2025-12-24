@@ -92,33 +92,48 @@ auto make_iterator_range(std::pair<IterT, IterT>&& pair) {
 }
 
 template<typename T>
-concept RangeLike = requires (T a) {
+concept RangeLike = requires (T& a) {
   { a.begin() } -> std::input_iterator;
   { a.end() } -> std::input_iterator;
+};
+
+template<typename T>
+concept ConstRangeLike = requires (T& a) {
   { a.cbegin() } -> std::input_iterator;
   { a.cend() } -> std::input_iterator;
 };
 
 template<RangeLike T>
-auto make_iterator_range(const T& container) {
+auto make_iterator_range(T& container) {
   return make_iterator_range(
-    container.begin(),
-    container.end()
+    std::begin(container),
+    std::end(container)
   );
 }
 
-template<typename ...Ts>
-struct zip_impl<
-  std::tuple<Ts...>
-, std::enable_if_t<meta::andmap_v<meta::lift<meta::is_range<std::remove_reference<meta::_1>>>, std::tuple<Ts...>>>
-> {
-  static auto apply(Ts&& ...args) {
-    return make_iterator_range(
-        zip(start(args)...),
-        zip(stop(args)...)
-    );
-  }
-};
+template<RangeLike T>
+auto make_const_iterator_range(const T& container) {
+  return make_iterator_range(
+    std::cbegin(container),
+    std::cend(container)
+  );
+}
+
+template<RangeLike ...Ts>
+auto zip(Ts& ...args) {
+  return make_iterator_range(
+    zip(std::begin(args)...),
+    zip(std::end(args)...)
+  );
+}
+
+template<ConstRangeLike ...Ts>
+auto czip(const Ts& ...args) {
+  return make_iterator_range(
+    zip(std::cbegin(args)...),
+    zip(std::cend(args)...)
+  );
+}
 
 ZEN_NAMESPACE_END
 

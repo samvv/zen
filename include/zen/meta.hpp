@@ -259,40 +259,6 @@ namespace meta {
       >
     > : std::true_type { };
 
-  template <typename T, typename = void>
-  struct is_nonconst_range : std::false_type { };
-
-  template <typename T>
-  struct is_nonconst_range<T,
-      std::void_t<
-        decltype(std::declval<T&>().begin()),
-        decltype(std::declval<T&>().end()),
-        typename T::value_type
-      >
-    > : std::true_type { };
-
-  template <typename T, typename = void>
-  struct is_const_range : std::false_type { };
-
-  template <typename T>
-  struct is_const_range<T,
-      std::void_t<
-        decltype(std::declval<const T&>().cbegin()),
-        decltype(std::declval<const T&>().cend()),
-        const typename T::value_type
-      >
-    > : std::true_type { };
-
-  template <typename T, typename = void>
-  struct is_range : std::conditional_t<
-      std::is_const_v<T>,
-      is_const_range<T>,
-      is_nonconst_range<T>
-    > {};
-
-  template<typename T>
-  constexpr const bool is_range_v = is_range<T>::value;
-
   template<std::size_t N, typename FnT, typename ...Ts>
   struct andmap_impl;
 

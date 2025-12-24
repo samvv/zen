@@ -112,15 +112,15 @@ public:
 
 };
 
-template<typename ...Ts>
-struct zip_impl<
-  std::tuple<Ts...>
-, std::enable_if_t<meta::andmap_v<meta::lift<meta::is_iterator<std::remove_reference<meta::_1>>>, std::tuple<Ts...>>>
-> {
-  static auto apply(Ts&& ...args) {
-    return zip_iterator<std::tuple<Ts...>>(std::tuple<Ts...>(std::forward<Ts>(args)...));
-  }
-};
+template<std::input_iterator...Ts>
+auto zip(Ts...args) {
+  return zip_iterator<std::tuple<Ts...>>(std::tuple<Ts...>(std::forward<Ts>(args)...));
+}
+
+template<std::input_iterator...Ts>
+auto czip(const Ts& ...args) {
+  return const_zip_iterator<std::tuple<Ts...>>(std::tuple<Ts...>(std::forward<Ts>(args)...));
+}
 
 ZEN_NAMESPACE_END
 

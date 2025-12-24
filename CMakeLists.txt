@@ -74,17 +74,18 @@ install(EXPORT Zen NAMESPACE "${ZEN_NAMESPACE}::" DESTINATION "${CMAKE_INSTALL_L
 if (ZEN_ENABLE_TESTS)
   add_executable(
     alltests
-    test/either.cc
-    test/mapped_iterator.cc
-    test/zip_iterator.cc
-    test/meta.cc
-    test/bytestring.cc
-    test/json.cc
     test/alloc.cc
-    test/po.cc
-    test/unicode.cc
-    test/graph.cc
+    test/bytestring.cc
+    test/either.cc
     test/fs_io.cc
+    test/graph.cc
+    test/json.cc
+    test/mapped_iterator.cc
+    test/meta.cc
+    test/po.cc
+    test/range.cc
+    test/unicode.cc
+    test/zip_iterator.cc
   )
   target_link_libraries(alltests zen gtest gtest_main)
   add_custom_target(check COMMAND alltests --gtest_color=yes COMMENT "Running tests")

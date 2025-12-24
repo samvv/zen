@@ -2,10 +2,10 @@
 #include "gtest/gtest.h"
 
 #include "zen/bytestring.hpp"
-#include "zen/meta.hpp"
+#include "zen/range.hpp"
 
-static_assert(zen::meta::is_range_v<const zen::bytestring>);
-static_assert(zen::meta::is_range_v<const zen::bytestring_view>);
+static_assert(zen::RangeLike<const zen::bytestring>);
+static_assert(zen::RangeLike<const zen::bytestring_view>);
 
 TEST(ByteStringTest, CanConstructFromStringLiteral) {
   zen::bytestring a = "foo";

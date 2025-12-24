@@ -64,16 +64,17 @@ zen_dep = declare_dependency(
 if zen_enable_tests
   executable(
     'alltests',
-    'test/either.cc',
-    'test/mapped_iterator.cc',
-    'test/zip_iterator.cc',
-    'test/meta.cc',
+    'test/alloc.cc',
     'test/bytestring.cc',
+    'test/either.cc',
     'test/filepath.cc',
     'test/json.cc',
-    'test/alloc.cc',
+    'test/mapped_iterator.cc',
+    'test/meta.cc',
     'test/po.cc',
+    'test/range.cc',
     'test/unicode.cc',
+    'test/zip_iterator.cc',
     include_directories: 'include',
     dependencies: [ gtest_dep, zen_dep ],
     build_by_default: false

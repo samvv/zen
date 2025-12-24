@@ -74,14 +74,6 @@ T next_n(T& value, meta::difference_t<T> n) {
   return next_n_impl<T>::apply(value, n);
 }
 
-template<typename T, typename = void>
-struct zip_impl;
-
-template<typename ...Ts>
-auto zip(Ts&&...args) {
-  return zip_impl<std::tuple<Ts...>>::apply(std::forward<Ts>(args)...);
-}
-
 template<class T, std::size_t N>
 concept has_tuple_element =
   requires(T t) {
@@ -127,26 +119,6 @@ typename meta::get_element_t<RangeT> last(RangeT range) {
     prev = curr;
   }
   return *prev;
-}
-
-template<typename T>
-typename std::enable_if<!std::is_const_v<T>, typename T::iterator>::type start(T& container) {
-  return container.begin();
-}
-
-template<typename T>
-typename std::enable_if<std::is_const_v<T>, typename T::const_iterator>::type start(T& container) {
-  return container.cbegin();
-}
-
-template<typename T>
-typename std::enable_if<!std::is_const_v<T>, typename T::iterator>::type stop(T& container) {
-  return container.end();
-}
-
-template<typename T>
-typename std::enable_if<std::is_const_v<T>, typename T::const_iterator>::type stop(T& container) {
-  return container.cend();
 }
 
 ZEN_NAMESPACE_END
