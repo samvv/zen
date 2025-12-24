@@ -119,6 +119,20 @@ auto make_const_iterator_range(const T& container) {
   );
 }
 
+/**
+ * This specialization allows users to pass an rvalue directly to the zip_iterator.
+ */
+template<typename IterT>
+auto zip(iterator_range<IterT> range) {
+  return make_iterator_range(
+    zip(std::begin(range)),
+    zip(std::end(range))
+  );
+}
+
+/**
+ * Since a range might be a container, rvalues are not allowed.
+ */
 template<RangeLike ...Ts>
 auto zip(Ts& ...args) {
   return make_iterator_range(
