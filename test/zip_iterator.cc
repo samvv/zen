@@ -21,6 +21,15 @@ static_assert(std::is_same_v<zip1::iterator_category, std::random_access_iterato
 
 static_assert(std::is_same_v<zip_iterator<std::tuple<std::vector<int>>>::value_type, std::tuple<int>>);
 
+TEST(ZipIteratorTest, CanIterEmptyRange) {
+  std::vector<bool> a {};
+  std::vector<int> b {};
+
+  auto range = zip(a, b);
+
+  ASSERT_EQ(range.begin(), range.end());
+}
+
 TEST(ZipIteratorTest, CanZipPairs) {
 
   std::vector<int> a { 1, 2, 3 , 4 };
