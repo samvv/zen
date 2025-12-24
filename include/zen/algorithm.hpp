@@ -8,18 +8,34 @@ ZEN_NAMESPACE_START
 #define ZEN_CONSTEXPR constexpr
 
 template<typename FnT, std::size_t ...J, typename ...Ts>
-ZEN_CONSTEXPR auto convert_impl(const std::tuple<Ts...>& value, std::integer_sequence<std::size_t, J...>, FnT&& op) {
-  return std::tuple<std::invoke_result_t<FnT, Ts>...> { op(std::get<J>(value))... };
+ZEN_CONSTEXPR auto map_tuple_impl(std::tuple<Ts...>& value, std::integer_sequence<std::size_t, J...>, FnT&& f) {
+  return std::make_tuple(f(std::get<J>(value))...);
+}
+
+template<typename FnT, std::size_t ...J, typename ...Ts>
+ZEN_CONSTEXPR auto map_const_tuple_impl(const std::tuple<Ts...>& value, std::integer_sequence<std::size_t, J...>, FnT&& f) {
+  return std::make_tuple(f(std::get<J>(value))...);
 }
 
 template<typename FnT, typename ...Ts>
-ZEN_CONSTEXPR auto convert(const std::tuple<Ts...>& value, FnT op) {
+ZEN_CONSTEXPR auto cmap(const std::tuple<Ts...>& value, FnT op) {
   using seq = std::make_index_sequence<std::tuple_size_v<std::tuple<Ts...>>>;
-  return convert_impl(std::tuple<Ts...>(value), seq(), std::forward<FnT>(op));
+  return map_const_tuple_impl(value, seq(), std::forward<FnT>(op));
+}
+
+template<typename FnT, typename ...Ts>
+auto map(std::tuple<Ts...>& value, FnT op) {
+  using seq = std::make_index_sequence<std::tuple_size_v<std::tuple<Ts...>>>;
+  return map_tuple_impl(value, seq(), std::forward<FnT>(op));
 }
 
 template<typename T1, typename T2, typename FnT>
-ZEN_CONSTEXPR auto convert(const std::pair<T1, T2>& value, FnT fn) {
+ZEN_CONSTEXPR auto cmap(const std::pair<T1, T2>& value, FnT fn) {
+  return std::make_pair<T1, T2>(fn(value.first), fn(value.second));
+}
+
+template<typename T1, typename T2, typename FnT>
+auto map(std::pair<T1, T2>& value, FnT fn) {
   return std::make_pair<T1, T2>(fn(value.first), fn(value.second));
 }
 
@@ -64,6 +80,31 @@ struct zip_impl;
 template<typename ...Ts>
 auto zip(Ts&&...args) {
   return zip_impl<std::tuple<Ts...>>::apply(std::forward<Ts>(args)...);
+}
+
+template<class T, std::size_t N>
+concept has_tuple_element =
+  requires(T t) {
+    typename std::tuple_element_t<N, std::remove_const_t<T>>;
+    { get<N>(t) } -> std::convertible_to<const std::tuple_element_t<N, T>&>;
+  };
+
+template<class T>
+concept tuple_like = !std::is_reference_v<T> 
+  && requires(T t) {
+      typename std::tuple_size<T>::type;
+      requires std::derived_from<
+        std::tuple_size<T>,
+        std::integral_constant<std::size_t, std::tuple_size_v<T>>
+      >;
+    }
+  && []<std::size_t... N>(std::index_sequence<N...>) {
+    return (has_tuple_element<T, N> && ...);
+  }(std::make_index_sequence<std::tuple_size_v<T>>());
+
+template <typename F, typename Tuple, std::size_t... I>
+auto tuple_map_impl(F&& f, Tuple&& t, std::index_sequence<I...>) {
+  return std::make_tuple(f(std::get<I>(t))...);
 }
 
 template<typename RangeT, typename FnT, typename OutIterT>

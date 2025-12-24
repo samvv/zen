@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <cstdint>
 #include <iterator>
 #include <tuple>
 #include <type_traits>
@@ -69,6 +68,10 @@ public:
     return *this;
   }
 
+  zip_iterator copy() {
+    return { iterators };
+  }
+
   bool operator==(const zip_iterator& other) const {
     return std::get<0>(iterators) == std::get<0>(other.iterators);
   }
@@ -77,8 +80,13 @@ public:
     return std::get<0>(iterators) != std::get<0>(other.iterators);
   }
 
-  void operator++() {
-    std::apply([&](auto& ...args) { ((++args),...); }, iterators);
+  zip_iterator& operator++() {
+    std::apply([](auto& ...args) { ((++args),...); }, iterators);
+    return *this;
+  }
+
+  zip_iterator operator++(int) {
+    return map(iterators, [&] (auto& iter) { return iter++; });
   }
 
   void operator--() {
@@ -86,11 +94,11 @@ public:
   }
 
   zip_iterator operator+(std::ptrdiff_t offset) {
-    return convert(iterators, [&] (auto& iter) { return iter + offset; });
+    return cmap(iterators, [&] (auto& iter) { return iter + offset; });
   }
 
   zip_iterator operator-(std::ptrdiff_t offset) {
-    return convert(iterators, [&] (auto& iter) { return iter - offset; });
+    return cmap(iterators, [&] (auto& iter) { return iter - offset; });
   }
 
   zip_iterator& operator=(const zip_iterator& other) {
@@ -99,7 +107,7 @@ public:
   }
 
   reference operator*() {
-    return convert(iterators, [&] (const auto& iter) { return *iter; });
+    return cmap(iterators, [] (const auto& iter) { return *iter; });
   }
 
 };

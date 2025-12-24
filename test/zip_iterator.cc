@@ -34,10 +34,37 @@ TEST(ZipIteratorTest, CanZipPairs) {
 
 }
 
-TEST(ZipRangeTest, CanZipPairs) {
+TEST(ZipRangeTest, CanIterPairsPostfix) {
 
   std::vector<int> a { 1, 2, 3 , 4 };
-  std::vector<float> b { 1.0, 2.0, 3.0, 4.0 };
+  std::vector<std::string> b { "one", "two", "three", "four" };
+
+  auto zipper = zip(a, b);
+
+  auto iter = zipper.begin();
+
+  auto [x1, y1] = *iter++;
+  ASSERT_EQ(x1, 1);
+  ASSERT_EQ(y1, "one");
+
+  auto [x2, y2] = *iter++;
+  ASSERT_EQ(x2, 2);
+  ASSERT_EQ(y2, "two");
+
+  auto [x3, y3] = *iter++;
+  ASSERT_EQ(x3, 3);
+  ASSERT_EQ(y3, "three");
+
+  auto [x4, y4] = *iter++;
+  ASSERT_EQ(x4, 4);
+  ASSERT_EQ(y4, "four");
+}
+
+
+TEST(ZipRangeTest, CanIterPairsPrefix) {
+
+  std::vector<int> a { 1, 2, 3 , 4 };
+  std::vector<std::string> b { "one", "two", "three", "four" };
 
   auto zipper = zip(a, b);
 
@@ -45,8 +72,29 @@ TEST(ZipRangeTest, CanZipPairs) {
 
   auto [x1, y1] = *iter;
   ASSERT_EQ(x1, 1);
-  ASSERT_EQ(y1, 1.0);
+  ASSERT_EQ(y1, "one");
 
+  ++iter;
+
+  auto [x2, y2] = *iter;
+  ASSERT_EQ(x2, 2);
+  ASSERT_EQ(y2, "two");
+
+  ++iter;
+
+  auto [x3, y3] = *iter;
+  ASSERT_EQ(x3, 3);
+  ASSERT_EQ(y3, "three");
+
+  ++iter;
+
+  auto [x4, y4] = *iter;
+  ASSERT_EQ(x4, 4);
+  ASSERT_EQ(y4, "four");
+
+  ++iter;
+
+  ASSERT_EQ(iter, zipper.end());
 }
 
 TEST(ZipIteratorTest, CanZipCStrings) {

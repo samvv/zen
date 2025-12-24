@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include <cwchar>
 #include <iterator>
 #include <type_traits>
 
@@ -84,7 +83,7 @@ namespace zen {
 
   };
 
-  template<typename IterT, typename F>
+  template<std::input_iterator IterT, typename F>
   auto map(IterT iterator, F func) {
     return mapped_iterator { iterator, func };
   }

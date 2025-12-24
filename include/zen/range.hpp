@@ -38,6 +38,24 @@ public:
     return right;
   }
 
+  iterator_range& operator++() requires std::incrementable<IterT> {
+    ++left;
+    return *this;
+  }
+
+  iterator_range operator++(int) requires std::incrementable<IterT> {
+    return iterator_range { left++, right };
+  }
+
+  iterator_range& operator--() requires std::incrementable<IterT> {
+    --left;
+    return *this;
+  }
+
+  iterator_range operator--(int) requires std::incrementable<IterT> {
+    return iterator_range { left--, right };
+  }
+
   template<typename F>
   auto map(F func) {
     using iter = mapped_iterator<IterT, F>;
