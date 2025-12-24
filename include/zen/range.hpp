@@ -144,8 +144,8 @@ auto zip(Ts& ...args) {
 template<ConstRangeLike ...Ts>
 auto czip(const Ts& ...args) {
   return make_iterator_range(
-    zip(std::cbegin(args)...),
-    zip(std::cend(args)...)
+    czip(std::cbegin(args)...),
+    czip(std::cend(args)...)
   );
 }
 
