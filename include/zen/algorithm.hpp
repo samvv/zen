@@ -1,6 +1,9 @@
 #ifndef ZEN_ALGORITHM_HPP
 #define ZEN_ALGORITHM_HPP
 
+#include <algorithm>
+#include <vector>
+
 #include "zen/meta.hpp"
 
 ZEN_NAMESPACE_START
@@ -104,6 +107,15 @@ void transform(const RangeT& range, FnT func, OutIterT iter) {
   for (auto& element: range) {
     iter = func(element);
   }
+}
+
+template<typename T, typename C>
+std::vector<T> collect(const C elements) {
+  std::vector<T> out;
+  for (const auto& element: elements) {
+    out.push_back(element);
+  }
+  return out;
 }
 
 template<typename RangeT>
