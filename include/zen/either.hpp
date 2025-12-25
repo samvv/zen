@@ -1,5 +1,5 @@
-/// \file
-/// \brief Encapsulation for computations that may fail.
+/// @file
+/// @brief Encapsulation for computations that may fail.
 ///
 /// A common idiom is to use the type defined in this header on functions that
 /// can fail, as an alternatve to exception handling. Some hold that this is a
@@ -101,19 +101,19 @@
 
 ZEN_NAMESPACE_START
 
-/// \private
+/// @private
 template<typename L>
 struct left_t {
   L value;
 };
 
-/// \private
+/// @private
 template<typename R>
 struct right_t {
   R value;
 };
 
-/// \private
+/// @private
 template<>
 struct right_t<void> {};
 
@@ -277,24 +277,24 @@ class either<L, void> {
 
 public:
 
-  /// \private
+  /// @private
   inline either(left_t<L> data): left_value(data.value), has_left(true) {};
 
-  /// \private
+  /// @private
   inline either(right_t<void>): has_left(false) {};
 
-  /// \private
+  /// @private
   template<typename L2>
   inline either(left_t<L2> data): left_value(data.value), has_left(true) {};
 
-  /// \private
+  /// @private
   either(either&& other): has_left(other.has_left) {
     if (other.has_left) {
       left_value = std::move(other.left_value);
     }
   }
 
-  /// \private
+  /// @private
   either(const either& other): has_left(other.has_left) {
     if (other.has_left) {
       left_value = other.left_value;
@@ -398,19 +398,19 @@ right_t<R> right(R&& value) {
   return right_t<R> { std::move(value) };
 }
 
-/// \brief Return a left-valued immediately so only a right-valued either type remains.
+/// @brief Return a left-valued immediately so only a right-valued either type remains.
 ///
 /// The remaining value can be safely unwrapped.
 ///
 /// ## Examples
 ///
-/// \snippet either_try.cc decode_utf8_string
+/// @snippet either_try.cc decode_utf8_string
 #define ZEN_TRY(value) \
   if (value.is_left()) { \
     return ::zen::left(std::move(value).take_left()); \
   }
 
-/// The same as [ZEN_TRY](\ref #ZEN_TRY) but the expression is immediately dropped.
+/// The same as [ZEN_TRY](@ref #ZEN_TRY) but the expression is immediately dropped.
 #define ZEN_TRY_DISCARD(expr) \
   { \
     auto zen__either__result = (expr); \

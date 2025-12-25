@@ -1,3 +1,5 @@
+/// @file
+/// @brief Support for creating ranges over iterators.
 #ifndef ZEN_ITERATOR_RANGE_HPP
 #define ZEN_ITERATOR_RANGE_HPP
 
@@ -31,10 +33,13 @@ public:
   iterator_range(IterT left, IterT right):
     left(left), right(right) {}
 
+
+  /// Get an iterator pointing to the first element in this range.
   IterT begin() {
     return left;
   }
 
+  /// Get an iterator pointing just beyond the last element in this range.
   IterT end() {
     return right;
   }
@@ -76,22 +81,27 @@ public:
 
 };
 
-/**
- * Create an [iterator_range] directly out of a start iterator and an end iterator.
- */
-template<typename IterT>
-auto make_iterator_range(IterT&& a, IterT&& b) {
+/// Create an @ref iterator_range directly out of a start iterator and an end
+/// iterator.
+///
+/// The resulting object has methods [begin()](@ref iterator_range::begin) and
+/// [end()](@ref iterator_range::end), which makes it compatible with for-loops.
+///
+/// @see make_iterator_range(std::pair<IterT, IterT>&& )
+template <typename IterT> auto make_iterator_range(IterT &&a, IterT &&b) {
   return iterator_range<IterT> { std::forward<IterT>(a), std::forward<IterT>(b) };
 }
 
-/**
- * Construct an iterator range from a pair of iterators.
- *
- * This function is especially useful for methods in the standard library that
- * return such a pair of iterators, such as std::unordered_map::equal_range.
- *
- * \example examples/make_const_iterator_range_std_equal_range.cc
- */
+/// Construct an iterator range from a pair of iterators.
+///
+/// This function is especially useful for methods in the standard library that
+/// return such a pair of iterators, such as [std::unordered_map::equal_range][1].
+///
+/// @include make_iterator_range_equal_range.cc
+///
+/// @see make_iterator_range(IterT&&, IterT&&)
+///
+/// [1]: https://en.cppreference.com/w/cpp/container/unordered_map/equal_range.html
 template<typename IterT>
 auto make_iterator_range(std::pair<IterT, IterT>&& pair) {
   return iterator_range<IterT> { std::forward<IterT>(pair.first), std::forward<IterT>(pair.second) };
@@ -125,13 +135,11 @@ struct _zip_accept_rvalue : std::false_type {};
 template<typename IterT>
 struct _zip_accept_rvalue<iterator_range<IterT>> : std::true_type {};
 
-/**
- * Create an [iterator_range] that zips over the given arguments.
- *
- * To create a zipper that only holds constant references, use [std::as_const][1]
- *
- * [1]: https://en.cppreference.com/w/cpp/utility/as_const.html
- */
+/// Create an @ref iterator_range that zips over the given arguments.
+///
+/// To create a zipper that only holds constant references, use [std::as_const][1]
+///
+/// [1]: https://en.cppreference.com/w/cpp/utility/as_const.html
 template<RangeLike ...Ts>
 auto zip(Ts&& ...args) {
   static_assert(
