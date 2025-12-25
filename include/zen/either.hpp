@@ -338,7 +338,7 @@ right_t<R> right(R&& value) {
 
 #define ZEN_TRY(value) \
   if (value.is_left()) { \
-    return ::zen::left(std::move(value.left())); \
+    return ::zen::left(std::move(value).take_left()); \
   }
 
 #define ZEN_TRY_DISCARD(expr) \
