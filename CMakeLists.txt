@@ -11,6 +11,7 @@ endif()
 
 set(ZEN_NAMESPACE "zen" CACHE STRING "The namespace in which to embed Zen++")
 set(ZEN_ENABLE_TESTS "${is_debug_build}" CACHE BOOL "Whether to generate the test infrastructure")
+set(ZEN_ENABLE_EXAMPLES "${is_debug_build}" CACHE BOOL "Whether to generate build infrastructure for the examples")
 set(ZEN_ENABLE_ASSERTIONS "${is_debug_build}" CACHE BOOL "Force the compiler to generate assertions for certain invariants")
 
 string(REPLACE "::" ";" zen_namespace_chunks "${ZEN_NAMESPACE}")
@@ -70,6 +71,17 @@ install(
 )
 install(TARGETS zen EXPORT Zen)
 install(EXPORT Zen NAMESPACE "${ZEN_NAMESPACE}::" DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Zen")
+
+if (ZEN_ENABLE_EXAMPLES)
+  file(GLOB example_sources examples/*.cc)
+  add_custom_target(examples)
+  foreach (filename IN LISTS example_sources)
+    get_filename_component (name "${filename}" NAME_WE)
+    add_executable("${name}" "${filename}")
+    target_link_libraries("${name}" zen)
+    add_dependencies(examples "${name}")
+  endforeach()
+endif()
 
 if (ZEN_ENABLE_TESTS)
   add_executable(

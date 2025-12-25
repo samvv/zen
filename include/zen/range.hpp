@@ -88,6 +88,8 @@ auto make_iterator_range(IterT&& a, IterT&& b) {
  *
  * This function is especially useful for methods in the standard library that
  * return such a pair of iterators, such as std::unordered_map::equal_range.
+ *
+ * \example examples/make_const_iterator_range_std_equal_range.cc
  */
 template<typename IterT>
 auto make_iterator_range(std::pair<IterT, IterT>&& pair) {
