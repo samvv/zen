@@ -239,6 +239,16 @@ public:
     return right_value;
   }
 
+  L take_left() && {
+    ZEN_ASSERT(!has_right_v);
+    return std::move(left_value);
+  }
+
+  R take_right() && {
+    ZEN_ASSERT(has_right_v);
+    return std::move(right_value);
+  }
+
   ~either() {
     if (has_right_v) {
       right_value.~R();
@@ -286,6 +296,11 @@ public:
   L& left() {
     ZEN_ASSERT(has_left);
     return left_value;
+  }
+
+  L take_left() && {
+    ZEN_ASSERT(has_left);
+    return std::move(left_value);
   }
 
   ~either() {
