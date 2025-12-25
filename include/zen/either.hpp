@@ -30,6 +30,7 @@
 ///   }
 ///   error = read(fd, output, 4);
 ///   if (error < 0) {
+///     close(fd);
 ///     return -1;
 ///   }
 ///   return 0;
@@ -85,7 +86,7 @@
 ///
 /// ```cpp
 /// template<typename T>
-/// using Result = either<Error, T>;
+/// using Result = zen::either<Error, T>;
 /// ```
 ///
 /// That's it! You've learned how to write simple C++ code the Zen way!
@@ -93,7 +94,6 @@
 #ifndef ZEN_EITHER_HPP
 #define ZEN_EITHER_HPP
 
-#include <type_traits>
 #include <utility>
 
 #include "zen/config.hpp"
@@ -101,19 +101,24 @@
 
 ZEN_NAMESPACE_START
 
+/// \private
 template<typename L>
 struct left_t {
   L value;
 };
 
+/// \private
 template<typename R>
 struct right_t {
   R value;
 };
 
+/// \private
 template<>
 struct right_t<void> {};
 
+
+/// A type for computations that may fail.
 template<typename L, typename R>
 class either {
 
@@ -272,32 +277,58 @@ class either<L, void> {
 
 public:
 
+  /// \private
   inline either(left_t<L> data): left_value(data.value), has_left(true) {};
+
+  /// \private
   inline either(right_t<void>): has_left(false) {};
 
+  /// \private
   template<typename L2>
   inline either(left_t<L2> data): left_value(data.value), has_left(true) {};
 
+  /// \private
   either(either&& other): has_left(other.has_left) {
     if (other.has_left) {
       left_value = std::move(other.left_value);
     }
   }
 
+  /// \private
   either(const either& other): has_left(other.has_left) {
     if (other.has_left) {
       left_value = other.left_value;
     }
   }
 
-  bool is_left() { return has_left; }
-  bool is_right() { return !has_left; }
+  /// Return whether this either type has a value on the left side.
+  ///
+  /// If this method returns true, it is guaranteed that the either type does
+  /// not have a value on the right side. Conversely, if this method returns
+  /// false then it is guaranteed that the either type has a value on the right
+  /// side.
+  bool is_left() {
+    return has_left;
+  }
 
+  /// Return whether this either type has a value on the right side.
+  ///
+  /// If this method returns true, it is guaranteed that the either type does
+  /// not have a value on the left side. Conversely, if this method returns
+  /// false then it is guaranteed that the either type has a value on the left
+  /// side.
+  bool is_right() {
+    return !has_left;
+  }
+
+  /// Get a copy of the left-sided value of this either type.
   L& left() {
     ZEN_ASSERT(has_left);
     return left_value;
   }
 
+  /// Move the left-sided value out of this either type, destroying the either
+  /// type in the processs.
   L take_left() && {
     ZEN_ASSERT(has_left);
     return std::move(left_value);
@@ -311,36 +342,75 @@ public:
 
 };
 
+/// Construct a left-valued either type. The provided value will be copied into
+/// the either type.
+///
+/// Usually, this means that a computation has failed and an error should be returned.
+///
+/// In Rust, one would write `Err(value)`.
 template<typename L>
 left_t<L&> left(L& value) {
   return left_t<L&> { value };
 }
 
+/// Construct a left-valued either type. The provided value will be moved into
+/// the either type.
+///
+/// Usually, this means that a computation has failed and an error should be returned.
+///
+/// In Rust, one would write `Err(value)`.
 template<typename L>
 left_t<L> left(L&& value) {
   return left_t<L> { std::move(value) };
 }
 
 /// Construct a right-valued either type that has no contents.
+///
+/// Usually, this means that the computation was successful but no particular
+/// value was generated during its run.
+///
+/// In Rust, one would return `Ok(())`.
 inline right_t<void> right() {
   return right_t<void> {};
 }
 
+/// Construct a right-valued either type. The provided value will be moved into
+/// the either type.
+///
+/// Usually, this means that the computation was successful and generated
+/// exactly one value.
+///
+/// In Rust, one would return `Ok(value)`.
 template<typename R>
 right_t<R&> right(R& value) {
   return right_t<R&> { value };
 }
 
+/// Construct a right-valued either type. The provided value will be copied into
+/// the either type.
+///
+/// Usually, this means that the computation was successful and generated
+/// exactly one value.
+///
+/// In Rust, one would return `Ok(value)`.
 template<typename R>
 right_t<R> right(R&& value) {
   return right_t<R> { std::move(value) };
 }
 
+/// \brief Return a left-valued immediately so only a right-valued either type remains.
+///
+/// The remaining value can be safely unwrapped.
+///
+/// ## Examples
+///
+/// \snippet either_try.cc decode_utf8_string
 #define ZEN_TRY(value) \
   if (value.is_left()) { \
     return ::zen::left(std::move(value).take_left()); \
   }
 
+/// The same as [ZEN_TRY](\ref #ZEN_TRY) but the expression is immediately dropped.
 #define ZEN_TRY_DISCARD(expr) \
   { \
     auto zen__either__result = (expr); \
