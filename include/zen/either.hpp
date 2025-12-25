@@ -1,4 +1,4 @@
-/// \file zen/either.hpp
+/// \file
 /// \brief Encapsulation for computations that may fail.
 ///
 /// A common idiom is to use the type defined in this header on functions that
