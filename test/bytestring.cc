@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 
 #include "zen/bytestring.hpp"
-#include "zen/range.hpp"
+#include "zen/iterator_range.hpp"
 
 static_assert(zen::RangeLike<const zen::bytestring>);
 static_assert(zen::RangeLike<const zen::bytestring_view>);

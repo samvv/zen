@@ -7,7 +7,7 @@
 #include "gtest/gtest.h"
 
 #include "zen/zip_iterator.hpp"
-#include "zen/range.hpp"
+#include "zen/iterator_range.hpp"
 
 using namespace zen;
 
