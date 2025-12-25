@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "zen/meta.hpp"
+#include "zen/compat.hpp"
 #include "zen/mapped_iterator.hpp"
 #include "zen/zip_iterator.hpp"
 
@@ -101,18 +102,6 @@ concept RangeLike = requires (T& a) {
   { a.begin() } -> std::input_iterator;
   { a.end() } -> std::input_iterator;
 };
-
-/**
- * This type is defined in the standard library as
- * [std::iter_const_reference_t][1] but we want to support down to C++ 20.
- *
- * [1]: https://en.cppreference.com/w/cpp/iterator/iter_t.html
- */
-template< std::indirectly_readable T >
-using iter_const_reference_t = std::common_reference_t<
-  const std::iter_value_t<T>&&,
-  std::iter_reference_t<T>
->;
 
 template<typename T>
 concept ConstRangeLike = RangeLike<T> && std::same_as<iter_const_reference_t<T>, std::iter_reference_t<T>>;
