@@ -97,11 +97,20 @@ concept RangeLike = requires (T& a) {
   { a.end() } -> std::input_iterator;
 };
 
+/**
+ * This type is defined in the standard library as
+ * [std::iter_const_reference_t][1] but we want to support down to C++ 20.
+ *
+ * [1]: https://en.cppreference.com/w/cpp/iterator/iter_t.html
+ */
+template< std::indirectly_readable T >
+using iter_const_reference_t = std::common_reference_t<
+  const std::iter_value_t<T>&&,
+  std::iter_reference_t<T>
+>;
+
 template<typename T>
-concept ConstRangeLike = requires (T& a) {
-  { a.cbegin() } -> std::input_iterator;
-  { a.cend() } -> std::input_iterator;
-};
+concept ConstRangeLike = RangeLike<T> && std::same_as<iter_const_reference_t<T>, std::iter_reference_t<T>>;
 
 template<RangeLike T>
 auto make_iterator_range(T& container) {
@@ -140,14 +149,6 @@ auto zip(Ts& ...args) {
   return make_iterator_range(
     zip(std::begin(args)...),
     zip(std::end(args)...)
-  );
-}
-
-template<ConstRangeLike ...Ts>
-auto czip(const Ts& ...args) {
-  return make_iterator_range(
-    czip(std::cbegin(args)...),
-    czip(std::cend(args)...)
   );
 }
 

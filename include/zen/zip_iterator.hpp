@@ -117,11 +117,6 @@ auto zip(Ts...args) {
   return zip_iterator<std::tuple<Ts...>>(std::tuple<Ts...>(std::forward<Ts>(args)...));
 }
 
-template<std::input_iterator...Ts>
-auto czip(const Ts& ...args) {
-  return const_zip_iterator<std::tuple<Ts...>>(std::tuple<Ts...>(std::forward<Ts>(args)...));
-}
-
 ZEN_NAMESPACE_END
 
 namespace std {
