@@ -34,6 +34,7 @@ decode_utf8_char(const unsigned char *& s) {
   return zen::right(c);
 }
 
+//! [decode_utf8_string]
 zen::either<std::string, std::vector<char32_t>> decode_utf8_string(const std::string_view& str) {
   std::vector<char32_t> out;
   const unsigned char* iter = reinterpret_cast<const unsigned char*>(str.data());
@@ -45,6 +46,7 @@ zen::either<std::string, std::vector<char32_t>> decode_utf8_string(const std::st
   }
   return zen::right(std::move(out));
 }
+//! [decode_utf8_string]
 
 int main(int argc, const char* argv[]) {
   ZEN_ASSERT(argc >= 2);
