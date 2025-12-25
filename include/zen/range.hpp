@@ -75,9 +75,12 @@ public:
 
 };
 
+/**
+ * Create an [iterator_range] directly out of a start iterator and an end iterator.
+ */
 template<typename IterT>
 auto make_iterator_range(IterT&& a, IterT&& b) {
-  return iterator_range<IterT>(std::forward<IterT>(a), std::forward<IterT>(b));
+  return iterator_range<IterT> { std::forward<IterT>(a), std::forward<IterT>(b) };
 }
 
 /**
@@ -88,7 +91,7 @@ auto make_iterator_range(IterT&& a, IterT&& b) {
  */
 template<typename IterT>
 auto make_iterator_range(std::pair<IterT, IterT>&& pair) {
-  return iterator_range<IterT>(std::forward<IterT>(pair.first), std::forward<IterT>(pair.second));
+  return iterator_range<IterT> { std::forward<IterT>(pair.first), std::forward<IterT>(pair.second) };
 }
 
 template<typename T>
@@ -120,32 +123,38 @@ auto make_iterator_range(T& container) {
   );
 }
 
-template<RangeLike T>
-auto make_const_iterator_range(const T& container) {
-  return make_iterator_range(
-    std::cbegin(container),
-    std::cend(container)
-  );
-}
+// By default, we don't allow rvalues.
+//
+// For example, a container passed to `zip` would be destroyed before the
+// iterator can run.
+template <typename T>
+struct _zip_accept_rvalue : std::false_type {};
+
+// An iterator_range should be passed by value.
+template<typename IterT>
+struct _zip_accept_rvalue<iterator_range<IterT>> : std::true_type {};
 
 /**
- * This specialization allows users to pass an rvalue directly to the zip_iterator.
+ * Create an [iterator_range] that zips over the given arguments.
  *
- * Eventually, we will want to apply this step to only a single argument.
- */
-template<std::input_iterator ... IterT>
-auto zip(iterator_range<IterT> ...range) {
-  return make_iterator_range(
-    zip(std::begin(range)...),
-    zip(std::end(range)...)
-  );
-}
-
-/**
- * Since a range might be a container, rvalues are not allowed.
+ * To create a zipper that only holds constant references, use [std::as_const][1]
+ *
+ * [1]: https://en.cppreference.com/w/cpp/utility/as_const.html
  */
 template<RangeLike ...Ts>
-auto zip(Ts& ...args) {
+auto zip(Ts&& ...args) {
+  static_assert(
+    meta::andmap_v<
+      meta::lift<
+        std::disjunction<
+          std::is_lvalue_reference<meta::_1>,
+          _zip_accept_rvalue<std::remove_reference_t<meta::_1>>
+        >
+      >,
+      std::tuple<Ts...>
+    >,
+    "the provided value cannot be passed in as an rvalue"
+  );
   return make_iterator_range(
     zip(std::begin(args)...),
     zip(std::end(args)...)
