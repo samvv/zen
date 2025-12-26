@@ -95,6 +95,7 @@ if (ZEN_ENABLE_TESTS)
     test/mapped_iterator.cc
     test/meta.cc
     test/po.cc
+    test/pool.cc
     test/iterator_range.cc
     test/unicode.cc
     test/zip_iterator.cc
