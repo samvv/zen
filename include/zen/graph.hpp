@@ -41,10 +41,14 @@ public:
   }
 
   void add_edge(V from, V to, L label) {
+    ZEN_ASSERT(vertices.count(from));
+    ZEN_ASSERT(vertices.count(to));
     out_edges.emplace(from, out_edge_t { label, to });
   }
 
   void add_edge(V from, V to) requires (std::is_same_v<L, no_label_t>) {
+    ZEN_ASSERT(vertices.count(from));
+    ZEN_ASSERT(vertices.count(to));
     out_edges.emplace(from, out_edge_t { {}, to });
   }
 
