@@ -27,6 +27,12 @@
 #define ZEN_NODISCARD
 #endif
 
+#if __cplusplus >= 201402L
+#define ZEN_DEPRECATED [[deprecated]]
+#else
+#define ZEN_DEPRECATED
+#endif
+
 #define ZEN_NOEXCEPT noexcept
 
 #endif // of #ifndef ZEN_CONFIG_HPP
