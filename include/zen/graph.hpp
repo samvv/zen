@@ -7,6 +7,7 @@
 #include <stack>
 #include <optional>
 
+#include "zen/config.hpp"
 #include "zen/iterator_range.hpp"
 
 ZEN_NAMESPACE_START
