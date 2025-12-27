@@ -1,6 +1,7 @@
-#ifndef ZEN_POOL_HPP
-#define ZEN_POOL_HPP
+#ifndef ZEN_BUMP_PTR_POOL_HPP
+#define ZEN_BUMP_PTR_POOL_HPP
 
+#include <cstddef>
 #include <cstring>
 #include <list>
 #include <memory>
@@ -8,6 +9,7 @@
 
 #include "zen/config.hpp"
 #include "zen/math.hpp"
+#include "zen/alloc.hpp"
 
 #define ZEN_DEFAULT_POOL_CHUNK_SIZE 65536
 
@@ -15,11 +17,18 @@
 
 ZEN_NAMESPACE_START
 
-using destroy_fn = void(*)(void*);
-
+/// A chunk of memory for storing variable-width objects which get destroyed all
+/// at once.
+///
+/// The objects are stored in a continuous byte array with a pointer keeping
+/// track of the free space at the end. The pointer is bumped with each
+/// allocation, hence the name.
+///
+/// @see construct
+/// @see growing_bump_ptr_pool
 class bump_ptr_pool {
 
-  std::size_t _sz;
+  std::size_t _data_sz;
 
   std::byte* _data_start;
   std::byte* _data_end;
@@ -56,9 +65,9 @@ class bump_ptr_pool {
 public:
 
   bump_ptr_pool(std::size_t sz = ZEN_DEFAULT_POOL_CHUNK_SIZE) {
-    _sz = sz;
-    _data_start = new std::byte[_sz + sizeof(void*)];
-    memset(_data_start, 0, _sz + sizeof(void*));
+    _data_sz = sz;
+    _data_start = new std::byte[_data_sz + sizeof(void*)];
+    memset(_data_start, 0, _data_sz + sizeof(void*));
     _data_end = _data_start;
   }
 
@@ -67,13 +76,13 @@ public:
   }
 
   std::size_t max_bytes_free() const {
-    auto free = _sz - (_data_end - _data_start);
+    auto free = _data_sz - (_data_end - _data_start);
     auto header_size = sizeof(void*) + sizeof(destroy_fn);
     return free < header_size ? 0 : free - header_size;
   }
 
-  std::size_t size() const {
-    return _sz;
+  std::size_t capacity() const {
+    return _data_sz;
   }
 
   void* allocate(std::size_t sz, std::size_t alignment, destroy_fn destroy) {
@@ -106,8 +115,18 @@ public:
 
 };
 
-/// A pool of memory for storing variable-width objects which get destroyed all
-/// at once.
+/// A growing collection of memory chunks for storing variable-width objects
+/// which get destroyed all at once.
+///
+/// This pool keeps allocating memory using a given pool until it is full, at
+/// which point another pool will be created.
+///
+/// The pools managed by this pool grow exponentially. That is, when allocating
+/// a new pool the size of the new pool will be at least double that of the old
+/// pool.
+///
+/// @see construct
+/// @see bump_ptr_pool
 class growing_bump_ptr_pool {
 
   std::list<bump_ptr_pool*> chunks;
@@ -130,7 +149,7 @@ public:
     auto next_chunk = new (std::nothrow) bump_ptr_pool {
       std::max(
         bump_ptr_pool::min_size_for(sz),
-        next_power_of_2(last_chunk->size())
+        next_power_of_2(last_chunk->capacity())
       )
     };
     if (ZEN_UNLIKELY(next_chunk == nullptr)) {
@@ -145,19 +164,8 @@ public:
       delete chunk;
     }
   }
-
 };
-
-template<typename R, typename Alloc, typename ...Ts>
-R* construct(Alloc& allocator, Ts&& ...args) {
-  auto ptr = allocator.allocate(sizeof(R), alignof(R), [](void* ptr) { static_cast<R*>(ptr)->~R(); });
-  if (ZEN_UNLIKELY(!ptr)) {
-    return nullptr;
-  }
-  ::new (ptr) R (std::forward<Ts>(args)...);
-  return reinterpret_cast<R*>(ptr);
-}
 
 ZEN_NAMESPACE_END
 
-#endif // of #ifndef ZEN_POOL_HPP
+#endif // of #ifndef ZEN_BUMP_PTR_POOL_HPP

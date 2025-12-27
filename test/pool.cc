@@ -1,5 +1,5 @@
 
-#include "zen/pool.hpp"
+#include "zen/bump_ptr_pool.hpp"
 
 #include "gtest/gtest.h"
 

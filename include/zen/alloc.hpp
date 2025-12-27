@@ -1,116 +1,69 @@
+#ifndef ZEN_ALLOC_HPP
+#define ZEN_ALLOC_HPP
 
-#pragma once
+#include <concepts>
+#include <utility>
 
-#include <cstddef>
-#include <stdlib.h>
-#include <string.h>
-
-#include <vector>
+#include "zen/config.hpp"
 
 ZEN_NAMESPACE_START
 
-#define ZEN_BLOCK_SIZE_NEXT sizeof(char**)
-#define ZEN_BLOCK_SIZE_SIZE sizeof(std::size_t)
+/// The signature of a function that is called whenever an object inside an
+/// allocator is going to be destroyed.
+///
+/// The function accepts a single `void*` parameter that contains a reference to
+/// the memory of the object that is being destroyed.
+///
+/// @see construct
+using destroy_fn = void (*)(void *);
 
-#define ZEN_BLOCK_OFFSET_NEXT 0
-#define ZEN_BLOCK_OFFSET_SIZE ZEN_BLOCK_OFFSET_NEXT + ZEN_BLOCK_SIZE_NEXT
-#define ZEN_BLOCK_OFFSET_DATA ZEN_BLOCK_OFFSET_SIZE + ZEN_BLOCK_SIZE_SIZE
-#define ZEN_BLOCK_HEADER_SIZE ZEN_BLOCK_OFFSET_DATA
-
-class block {
-
-  friend class pool_alloc;
-
-  char* data;
-
-public:
-
-  inline block(char* data):
-    data(data) {
-      if (data != nullptr) {
-        set_size(0);
-      }
-    }
-
-  operator bool() const noexcept {
-    return data;
-  }
-
-  block next() const noexcept {
-    return block(*reinterpret_cast<char**>(data + ZEN_BLOCK_OFFSET_NEXT));
-  }
-
-  void set_next(block new_next) const noexcept {
-    memcpy(data + ZEN_BLOCK_OFFSET_NEXT, reinterpret_cast<char**>(&new_next.data), ZEN_BLOCK_SIZE_NEXT);
-  }
-
-  std::size_t size() const noexcept {
-    return *reinterpret_cast<std::size_t*>(data + ZEN_BLOCK_OFFSET_SIZE);
-  }
-
-  void set_size(std::size_t new_size) const noexcept {
-    memcpy(data, reinterpret_cast<char*>(&new_size), ZEN_BLOCK_SIZE_SIZE);
-  }
-
+/// The concept of all allocators that can allocate dynamic objects.
+///
+/// This type of allocators must keep track of destructors because the type is
+/// not known upfront.
+///
+/// @see construct
+template<typename T>
+concept DynamicAllocator = requires (
+  T& t,
+  std::size_t size,
+  std::size_t alignment,
+  destroy_fn destroy
+) {
+  { t.allocate(size, alignment, destroy) } -> std::same_as<void*>;
 };
 
-class pool_alloc {
-
-  block head = nullptr;
-  block tail = nullptr;
-
-  std::size_t block_size;
-
-  block create_block() {
-    auto raw = malloc(block_size + ZEN_BLOCK_HEADER_SIZE);
-    if (!raw) {
-      return nullptr;
-    }
-    block blk(static_cast<char*>(raw));
-    return blk;
+/// Construct an object inside the memory provided by the given allocator.
+///
+/// ```
+/// #include <iostream>
+///
+/// #include "zen/alloc.hpp"
+/// #include "zen/bump_ptr_pool.hpp"
+///
+/// int main() {
+///   zen::bump_ptr_pool p;
+///   Foo* ptr = zen::construct<Foo>(1, 2);
+///   if (!ptr) {
+///     std::cerr << "out of memory!\n";
+///     return 1;
+///   }
+/// }
+/// ```
+template<typename R, DynamicAllocator Alloc, typename ...Ts>
+R* construct(Alloc& allocator, Ts&& ...args) {
+  auto ptr = allocator.allocate(
+    sizeof(R),
+    alignof(R),
+    [](void* ptr) { static_cast<R*>(ptr)->~R(); }
+  );
+  if (ZEN_UNLIKELY(!ptr)) {
+    return nullptr;
   }
-
-  char* allocate_from_block(block& blk, std::size_t amount) {
-    auto sz = blk.size();
-    if (block_size < amount + sz) {
-      return nullptr;
-    }
-    blk.set_size(sz + amount);
-    return blk.data + ZEN_BLOCK_OFFSET_DATA + sz;
-  }
-
-public:
-
-  inline pool_alloc(
-    std::size_t block_size = 16 * 1024
-  ): block_size(block_size) {}
-
-  std::size_t max_alloc_size() const noexcept {
-    return block_size;
-  }
-
-  void* allocate(std::size_t byte_count) {
-    if (!tail) {
-      head = tail = create_block();
-      if (!tail) {
-        return nullptr;
-      }
-      tail.set_next(nullptr);
-    }
-    auto ptr = allocate_from_block(tail, byte_count);
-    if (ptr) {
-      return ptr;
-    }
-    auto next = create_block();
-    if (!next) {
-      return nullptr;
-    }
-    tail.set_next(next);
-    next.set_next(nullptr);
-    tail = next;
-    return allocate_from_block(tail, byte_count);
-  }
-
-};
+  ::new (ptr) R (std::forward<Ts>(args)...);
+  return reinterpret_cast<R*>(ptr);
+}
 
 ZEN_NAMESPACE_END
+
+#endif // of #ifndef ZEN_ALLOC_HPP

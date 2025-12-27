@@ -87,7 +87,6 @@ endif()
 if (ZEN_ENABLE_TESTS)
   add_executable(
     alltests
-    test/alloc.cc
     test/bytestring.cc
     test/either.cc
     test/fs_io.cc
