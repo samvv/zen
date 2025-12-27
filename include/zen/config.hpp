@@ -12,6 +12,12 @@
     ZEN_PANIC("The invariant " #test " failed to hold. See the stack trace for more details."); \
   }
 
+#if ZEN_ENABLE_DEBUG_ASSERTIONS
+#define ZEN_DEBUG_ASSERT(test) ZEN_ASSERT(test)
+#else
+#define ZEN_DEBUG_ASSERT(test)
+#endif
+
 #define ZEN_PANIC(message, ...)                                            \
   fprintf(stderr, __FILE__ ":" ZEN_CAT2(__LINE__) ": " message "\n" __VA_OPT__(,) __VA_ARGS__); \
   std::abort();

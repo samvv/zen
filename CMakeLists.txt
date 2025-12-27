@@ -12,7 +12,7 @@ endif()
 set(ZEN_NAMESPACE "zen" CACHE STRING "The namespace in which to embed Zen++")
 set(ZEN_ENABLE_TESTS "${is_debug_build}" CACHE BOOL "Whether to generate the test infrastructure")
 set(ZEN_ENABLE_EXAMPLES "${is_debug_build}" CACHE BOOL "Whether to generate build infrastructure for the examples")
-set(ZEN_ENABLE_ASSERTIONS "${is_debug_build}" CACHE BOOL "Force the compiler to generate assertions for certain invariants")
+set(ZEN_ENABLE_DEBUG_ASSERTIONS "${is_debug_build}" CACHE BOOL "Force the compiler to generate assertions for certain invariants")
 
 string(REPLACE "::" ";" zen_namespace_chunks "${ZEN_NAMESPACE}")
 
@@ -23,8 +23,8 @@ foreach(name IN LISTS zen_namespace_chunks)
   set(zen_namespace_end "${zen_namespace_end} } ")
 endforeach()
 
-if (ZEN_ENABLE_ASSERTIONS)
-  message("-- Compiling Zen++ with assertions enabled")
+if (ZEN_ENABLE_DEBUG_ASSERTIONS)
+  message("-- Compiling Zen++ with debug assertions enabled")
 endif()
 
 # This must be added before doing any other configuration so that
@@ -48,6 +48,7 @@ add_library(
 target_compile_definitions(
   zen
   PUBLIC
+  ZEN_ENABLE_DEBUG_ASSERTIONS=${ZEN_ENABLE_DEBUG_ASSERTIONS}
   ZEN_NAMESPACE=${ZEN_NAMESPACE}
   "ZEN_NAMESPACE_START=${zen_namespace_start}"
   "ZEN_NAMESPACE_END=${zen_namespace_end}"
