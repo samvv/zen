@@ -15,6 +15,7 @@
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -126,7 +127,7 @@ Functions</h2></td></tr>
 <li>Consumers of your API know immediately that a function might fail, and have to deal with it explicitly.</li>
 <li>Because the exception is encoded in the type, some bugs can be captured at compile-time that might otherwise be more subtle.</li>
 </ul>
-<h3 class="doxsection"><a class="anchor" id="autotoc_md0"></a>
+<h3 class="doxsection"><a class="anchor" id="autotoc_md4"></a>
 Working With Computations That May Fail</h3>
 <p>Often, you find yourself interfacing with external systems, such as a network service or the file system. Doing operations on these objects can result in failures, e.g. an <span class="tt">ENOENT</span> returned from a call to <span class="tt">stat()</span>.</p>
 <p>In C, it is very common to store the actual result in one of the function's parameters and return an error code, like so:</p>
@@ -198,7 +199,7 @@ Working With Computations That May Fail</h3>
 </div><!-- fragment -->
 <p>Return a left-valued immediately so only a right-valued either type remains. </p>
 <p>The remaining value can be safely unwrapped.</p>
-<h2 class="doxsection"><a class="anchor" id="autotoc_md1"></a>
+<h2 class="doxsection"><a class="anchor" id="autotoc_md5"></a>
 Examples</h2>
 <div class="fragment"><div class="line">zen::either&lt;std::string, std::vector&lt;char32_t&gt;&gt; decode_utf8_string(<span class="keyword">const</span> std::string_view&amp; str) {</div>
 <div class="line">  std::vector&lt;char32_t&gt; out;</div>

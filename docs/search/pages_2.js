@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['fail_0',['Working With Computations That May Fail',['../either_8hpp.html#autotoc_md0',1,'']]]
+  ['dangers_0',['What are the dangers?',['../index.html#autotoc_md0',1,'']]],
+  ['documentation_1',['Documentation',['../index.html#autotoc_md2',1,'']]]
 ];

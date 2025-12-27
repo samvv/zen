@@ -5,6 +5,6 @@ var searchData=
   ['map_3c_20std_3a_3atuple_3c_20ts_2e_2e_2e_20_3e_2c_20f_20_3e_2',['map&lt; std::tuple&lt; Ts... &gt;, F &gt;',['../structmeta_1_1map_3_01std_1_1tuple_3_01Ts_8_8_8_01_4_00_01F_01_4.html',1,'meta']]],
   ['mapped_5fiterator_3',['mapped_iterator',['../classzen_1_1mapped__iterator.html',1,'zen']]],
   ['match_4',['match',['../classpo_1_1match.html',1,'po']]],
-  ['may_20fail_5',['Working With Computations That May Fail',['../either_8hpp.html#autotoc_md0',1,'']]],
+  ['may_20fail_5',['Working With Computations That May Fail',['../either_8hpp.html#autotoc_md4',1,'']]],
   ['missing_5fpos_5farg_5ferror_6',['missing_pos_arg_error',['../structpo_1_1missing__pos__arg__error.html',1,'po']]]
 ];
