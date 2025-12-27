@@ -88,7 +88,7 @@ that put their time and energy in building this.
 
 See [the LICENSE file][3] for more information.
 
-[1]: https://zencpp.github.io/
+[1]: https://samvv.github.io/zen/
 [2]: http://www.doxygen.nl/
-[3]: https://github.com/ZenLibraries/ZenLibraries/blob/master/LICENSE
+[3]: https://github.com/samvv/zen/blob/master/LICENSE
 
