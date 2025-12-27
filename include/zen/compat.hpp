@@ -23,6 +23,18 @@ using iter_const_reference_t = std::common_reference_t<
   std::iter_reference_t<T>
 >;
 
+template<typename T, typename ... U>
+concept neither = (!std::same_as<T, U> && ...);
+
+template<typename T>
+concept strict_unsigned_integral = std::unsigned_integral<T> &&
+  neither<T, bool, char, char8_t, char16_t, char32_t, wchar_t>;
+
+/// Checks if x is an integral power of two.
+constexpr bool has_single_bit(strict_unsigned_integral auto x) noexcept {
+  return x && !(x & (x - 1));
+}
+
 ZEN_NAMESPACE_END
 
 #endif // of #ifndef ZEN_COMPAT_HPP
