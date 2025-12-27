@@ -39,6 +39,14 @@
 #define ZEN_DEPRECATED
 #endif
 
+#if __has_builtin(__builtin_expect) || defined(__GNUC__)
+#define ZEN_LIKELY(expr) __builtin_expect((bool)(expr), true)
+#define ZEN_UNLIKELY(expr) __builtin_expect((bool)(expr), false)
+#else
+#define ZEN_LIKELY(expr) (expr)
+#define ZEN_UNLIKELY(expr) (expr)
+#endif
+
 #define ZEN_NOEXCEPT noexcept
 
 #endif // of #ifndef ZEN_CONFIG_HPP
