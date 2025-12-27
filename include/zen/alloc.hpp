@@ -1,7 +1,17 @@
+/// @file
+/// @brief Generic tools and utilities for using and defining allocators.
+///
+/// Unless writing a custom allocator, the most essential declaration in this
+/// header file is [zen::construct](@ref construct). It allows you to construct
+/// any object inside the allocator of choice.
+///
+/// @include bump_ptr_construct.cc
+
 #ifndef ZEN_ALLOC_HPP
 #define ZEN_ALLOC_HPP
 
 #include <concepts>
+#include <new>
 #include <utility>
 
 #include "zen/config.hpp"
@@ -14,7 +24,32 @@ ZEN_NAMESPACE_START
 /// The function accepts a single `void*` parameter that contains a reference to
 /// the memory of the object that is being destroyed.
 ///
-/// @see construct
+/// ```
+/// #include <iostream>
+///
+/// #include "zen/alloc.hpp"
+///
+/// struct Foo {
+///
+///   ~Foo() {
+///     std::cerr << "Foo is being destroyed!\n";
+///   }
+///
+/// }
+///
+/// int main() {
+///   zen::bump_ptr_pool allocator;
+///   auto ptr = allocator.allocate(
+///     sizeof(Foo),
+///     alignof(Foo),
+///     [](void* ptr) { static_cast<Foo*>(ptr)->~Foo(); }
+///   );
+///   auto foo = std::launder(reinterpret_cast<Foo*>(ptr));
+///   // Foo's destructor will run at the end of the program
+/// }
+/// ```
+///
+/// @see construct for automatically constructing objects using an allocator
 using destroy_fn = void (*)(void *);
 
 /// The concept of all allocators that can allocate dynamic objects.
@@ -35,21 +70,10 @@ concept DynamicAllocator = requires (
 
 /// Construct an object inside the memory provided by the given allocator.
 ///
-/// ```
-/// #include <iostream>
+/// @include construct.cc
 ///
-/// #include "zen/alloc.hpp"
-/// #include "zen/bump_ptr_pool.hpp"
-///
-/// int main() {
-///   zen::bump_ptr_pool p;
-///   Foo* ptr = zen::construct<Foo>(1, 2);
-///   if (!ptr) {
-///     std::cerr << "out of memory!\n";
-///     return 1;
-///   }
-/// }
-/// ```
+/// @see bump_ptr_pool for a simple allocator for dynamic objects
+/// @see growing_bump_ptr_pool for an allocator that grows in size when out of memory
 template<typename R, DynamicAllocator Alloc, typename ...Ts>
 R* construct(Alloc& allocator, Ts&& ...args) {
   auto ptr = allocator.allocate(
@@ -61,7 +85,7 @@ R* construct(Alloc& allocator, Ts&& ...args) {
     return nullptr;
   }
   ::new (ptr) R (std::forward<Ts>(args)...);
-  return reinterpret_cast<R*>(ptr);
+  return std::launder(reinterpret_cast<R*>(ptr));
 }
 
 ZEN_NAMESPACE_END

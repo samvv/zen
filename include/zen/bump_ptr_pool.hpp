@@ -1,3 +1,11 @@
+/// @file
+/// @brief Implementation of a bump-pointer allocator.
+///
+/// This header defines @ref bump_ptr_pool, a kind of allocator that moves a pointer
+/// to the right each time a new allocation is done.
+///
+/// @include bump_ptr_construct.cc
+
 #ifndef ZEN_BUMP_PTR_POOL_HPP
 #define ZEN_BUMP_PTR_POOL_HPP
 
@@ -17,7 +25,7 @@
 
 ZEN_NAMESPACE_START
 
-/// A chunk of memory for storing variable-width objects which get destroyed all
+/// @brief A chunk of memory for storing variable-width objects which get destroyed all
 /// at once.
 ///
 /// The objects are stored in a continuous byte array with a pointer keeping
@@ -25,6 +33,7 @@ ZEN_NAMESPACE_START
 /// allocation, hence the name.
 ///
 /// @see construct
+/// @see DynamicAllocator
 /// @see growing_bump_ptr_pool
 class bump_ptr_pool {
 
@@ -115,7 +124,7 @@ public:
 
 };
 
-/// A growing collection of memory chunks for storing variable-width objects
+/// @brief A growing collection of memory chunks for storing variable-width objects
 /// which get destroyed all at once.
 ///
 /// This pool keeps allocating memory using a given pool until it is full, at
