@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['reference_0',['reference',['../classzen_1_1mapped__iterator.html#af0be351f475af0f566b50b44ce2160ba',1,'zen::mapped_iterator::reference'],['../classzip__iterator.html#a9e9d101149821d94f593366cb77d51d7',1,'zip_iterator::reference']]]
+  ['destroy_5ffn_0',['destroy_fn',['../alloc_8hpp.html#a4290fd2d687bea7db25531a742da3f1e',1,'alloc.hpp']]]
 ];

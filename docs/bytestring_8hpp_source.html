@@ -15,7 +15,6 @@
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -94,7 +93,7 @@ $(function() {
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;zen/config.hpp&quot;</span></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;zen/algorithm.hpp&quot;</span></div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;zen/zip_iterator.hpp&quot;</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;<a class="code" href="range_8hpp.html">zen/range.hpp</a>&quot;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;<a class="code" href="iterator__range_8hpp.html">zen/iterator_range.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>ZEN_NAMESPACE_START</div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
@@ -142,7 +141,7 @@ $(function() {
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordflow">if</span> (sz != other.sz) {</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>      <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    }</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> [c1, c2]: <a class="code hl_function" href="range_8hpp.html#a9caaa3d877c404c2034f769ac8f83526">zip</a>(*<span class="keyword">this</span>, other)) {</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keywordflow">for</span> (<span class="keyword">auto</span> [c1, c2]: <a class="code hl_function" href="iterator__range_8hpp.html#a9caaa3d877c404c2034f769ac8f83526">zip</a>(*<span class="keyword">this</span>, other)) {</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>      <span class="keywordflow">if</span> (c1 != c2) {</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>      }</div>
@@ -368,8 +367,8 @@ $(function() {
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span><span class="preprocessor">#endif </span><span class="comment">// #infdef ZEN_BYTESTRING_HPP</span></div>
 <div class="ttc" id="aclassbasic__bytestring_html"><div class="ttname"><a href="classbasic__bytestring.html">basic_bytestring</a></div><div class="ttdef"><b>Definition</b> bytestring.hpp:113</div></div>
 <div class="ttc" id="aclassbytestring__view_html"><div class="ttname"><a href="classbytestring__view.html">bytestring_view</a></div><div class="ttdef"><b>Definition</b> bytestring.hpp:37</div></div>
-<div class="ttc" id="arange_8hpp_html"><div class="ttname"><a href="range_8hpp.html">range.hpp</a></div><div class="ttdoc">Support for creating ranges over iterators.</div></div>
-<div class="ttc" id="arange_8hpp_html_a9caaa3d877c404c2034f769ac8f83526"><div class="ttname"><a href="range_8hpp.html#a9caaa3d877c404c2034f769ac8f83526">zip</a></div><div class="ttdeci">auto zip(Ts &amp;&amp;...args)</div><div class="ttdef"><b>Definition</b> range.hpp:144</div></div>
+<div class="ttc" id="aiterator__range_8hpp_html"><div class="ttname"><a href="iterator__range_8hpp.html">iterator_range.hpp</a></div><div class="ttdoc">Support for creating ranges over iterators.</div></div>
+<div class="ttc" id="aiterator__range_8hpp_html_a9caaa3d877c404c2034f769ac8f83526"><div class="ttname"><a href="iterator__range_8hpp.html#a9caaa3d877c404c2034f769ac8f83526">zip</a></div><div class="ttdeci">auto zip(Ts &amp;&amp;...args)</div><div class="ttdef"><b>Definition</b> iterator_range.hpp:144</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

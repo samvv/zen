@@ -15,7 +15,6 @@
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
-<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
@@ -195,7 +194,7 @@ $(function() {
 </div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="keyword">template</span>&lt;std::input_iterator...Ts&gt;</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keyword">auto</span> <a class="code hl_function" href="range_8hpp.html#a9caaa3d877c404c2034f769ac8f83526">zip</a>(Ts...args) {</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keyword">auto</span> <a class="code hl_function" href="iterator__range_8hpp.html#a9caaa3d877c404c2034f769ac8f83526">zip</a>(Ts...args) {</div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>  <span class="keywordflow">return</span> <a class="code hl_class" href="classzip__iterator.html">zip_iterator</a>&lt;std::tuple&lt;Ts...&gt;&gt;(std::tuple&lt;Ts...&gt;(std::forward&lt;Ts&gt;(args)...));</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>}</div>
 <div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
@@ -220,7 +219,7 @@ $(function() {
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span><span class="preprocessor">#endif </span><span class="comment">// #ifndef ZEN_ZIP_ITERATOR_HPP</span></div>
 <div class="ttc" id="aclasszip__iterator_html"><div class="ttname"><a href="classzip__iterator.html">zip_iterator</a></div><div class="ttdef"><b>Definition</b> zip_iterator.hpp:33</div></div>
 <div class="ttc" id="aclasszip__iterator_html_a9e9d101149821d94f593366cb77d51d7"><div class="ttname"><a href="classzip__iterator.html#a9e9d101149821d94f593366cb77d51d7">zip_iterator::reference</a></div><div class="ttdeci">value_type reference</div><div class="ttdef"><b>Definition</b> zip_iterator.hpp:46</div></div>
-<div class="ttc" id="arange_8hpp_html_a9caaa3d877c404c2034f769ac8f83526"><div class="ttname"><a href="range_8hpp.html#a9caaa3d877c404c2034f769ac8f83526">zip</a></div><div class="ttdeci">auto zip(Ts &amp;&amp;...args)</div><div class="ttdef"><b>Definition</b> range.hpp:144</div></div>
+<div class="ttc" id="aiterator__range_8hpp_html_a9caaa3d877c404c2034f769ac8f83526"><div class="ttname"><a href="iterator__range_8hpp.html#a9caaa3d877c404c2034f769ac8f83526">zip</a></div><div class="ttdeci">auto zip(Ts &amp;&amp;...args)</div><div class="ttdef"><b>Definition</b> iterator_range.hpp:144</div></div>
 <div class="ttc" id="astruct__get__iterator__category_html"><div class="ttname"><a href="struct__get__iterator__category.html">_get_iterator_category</a></div><div class="ttdef"><b>Definition</b> zip_iterator.hpp:17</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['right_0',['right',['../either_8hpp.html#a47aea71e3695a35d51e75e2e2d0d4ac3',1,'right():&#160;either.hpp'],['../either_8hpp.html#a6e6bcad5f64ad32dfd6e3e080ee849c1',1,'right(R &amp;value):&#160;either.hpp'],['../either_8hpp.html#a1242d63b2e4c534344bd2700220e1c1d',1,'right(R &amp;&amp;value):&#160;either.hpp']]]
+  ['make_5fiterator_5frange_0',['make_iterator_range',['../iterator__range_8hpp.html#a5b00c7eb3492f9ebd9a06346dab756b6',1,'make_iterator_range(IterT &amp;&amp;a, IterT &amp;&amp;b):&#160;iterator_range.hpp'],['../iterator__range_8hpp.html#a5847e278ef384d8e97da0849cb74f261',1,'make_iterator_range(std::pair&lt; IterT, IterT &gt; &amp;&amp;pair):&#160;iterator_range.hpp']]]
 ];

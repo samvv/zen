@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['tuple_5flike_0',['tuple_like',['../concepttuple__like.html',1,'']]]
+  ['neither_0',['neither',['../conceptneither.html',1,'']]]
 ];

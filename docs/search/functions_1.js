@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['end_0',['end',['../classiterator__range.html#a33f756ed9d176ef0ad21a11603eace26',1,'iterator_range']]]
+  ['construct_0',['construct',['../alloc_8hpp.html#a141be052589da7b62fe714b51d8a266a',1,'alloc.hpp']]]
 ];
