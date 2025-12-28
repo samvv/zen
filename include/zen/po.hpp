@@ -12,6 +12,7 @@
 #include <memory>
 #include <typeindex>
 
+#include "zen/config.hpp"
 #include "zen/clone_ptr.hpp"
 #include "zen/config.hpp"
 #include "zen/iterator_range.hpp"

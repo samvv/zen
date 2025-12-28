@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <vector>
 
+#include "zen/config.hpp"
 #include "zen/hash.hpp"
 
 ZEN_NAMESPACE_START

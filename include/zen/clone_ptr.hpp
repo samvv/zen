@@ -3,6 +3,8 @@
 
 #include <utility>
 
+#include "zen/config.hpp"
+
 ZEN_NAMESPACE_START
 
 template<typename T, typename Enabler = void>

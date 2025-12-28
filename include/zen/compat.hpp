@@ -9,6 +9,8 @@
 
 #include <iterator>
 
+#include "zen/config.hpp"
+
 ZEN_NAMESPACE_START
 
 /// Compute the const reference type of T.

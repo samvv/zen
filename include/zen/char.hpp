@@ -1,6 +1,8 @@
 #ifndef ZEN_CHAR_HPP
 #define ZEN_CHAR_HPP
 
+#include "zen/config.hpp"
+
 ZEN_NAMESPACE_START
 
 inline bool is_digit(char ch) {

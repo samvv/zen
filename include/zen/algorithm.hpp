@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <vector>
 
+#include "zen/config.hpp"
 #include "zen/meta.hpp"
 
 ZEN_NAMESPACE_START

@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <utility>
 
+#include "zen/config.hpp"
 #include "zen/meta.hpp"
 #include "zen/algorithm.hpp"
 

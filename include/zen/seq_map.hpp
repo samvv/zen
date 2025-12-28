@@ -4,6 +4,7 @@
 #include <vector>
 #include <list>
 
+#include "zen/config.hpp"
 #include "zen/hash_index.hpp"
 
 ZEN_NAMESPACE_START

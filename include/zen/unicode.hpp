@@ -2,7 +2,6 @@
 #define ZEN_UNICODE_HPP
 
 #include <cstdint>
-#include <istream>
 
 #include "zen/error.hpp"
 #include "zen/json.hpp"
@@ -11,6 +10,8 @@
 namespace zen {
 
   using unicode_char = std::uint32_t;
+
+  // FIXME must be merged with zen::string
   using unicode_string = std::basic_string<unicode_char>;
 
   static constexpr const unicode_char eof = 0xFFFF;

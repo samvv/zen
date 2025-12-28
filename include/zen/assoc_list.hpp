@@ -1,9 +1,10 @@
 #ifndef ZEN_ASSOC_LIST_HPP
 #define ZEN_ASSOC_LIST_HPP
 
-#include <iostream>
 #include <vector>
 #include <string>
+
+#include "zen/config.hpp"
 
 ZEN_NAMESPACE_START
 

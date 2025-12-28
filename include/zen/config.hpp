@@ -4,6 +4,18 @@
 #include <stdio.h>
 #include <cstdlib>
 
+#ifndef ZEN_NAMESPACE
+#define ZEN_NAMESPACE zen
+#endif
+
+#ifndef ZEN_NAMESPACE_START
+#define ZEN_NAMESPACE_START namespace zen {
+#endif
+
+#ifndef ZEN_NAMESPACE_END
+#define ZEN_NAMESPACE_END }
+#endif
+
 #define ZEN_CAT(arg) #arg
 #define ZEN_CAT2(arg) ZEN_CAT(arg)
 

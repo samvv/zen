@@ -5,6 +5,7 @@
 #include <istream>
 #include <ostream>
 
+#include "zen/config.hpp"
 #include "zen/transformer.hpp"
 #include "zen/value.hpp"
 #include "zen/either.hpp"

@@ -7,6 +7,8 @@
 #include <type_traits>
 #include <memory>
 
+#include "zen/config.hpp"
+
 ZEN_NAMESPACE_START
 
 namespace meta {

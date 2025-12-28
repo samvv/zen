@@ -3,6 +3,8 @@
 #include <ostream>
 #include <sstream>
 
+#include "zen/config.hpp"
+
 ZEN_NAMESPACE_START
 
 template<typename T>

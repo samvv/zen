@@ -9,20 +9,14 @@ else()
   set(is_debug_build OFF)
 endif()
 
-set(ZEN_NAMESPACE "zen" CACHE STRING "The namespace in which to embed Zen++")
+set(ZEN_NAMESPACE "" CACHE STRING "The namespace in which to embed Zen++")
 set(ZEN_ENABLE_TESTS "${is_debug_build}" CACHE BOOL "Whether to generate the test infrastructure")
 set(ZEN_ENABLE_EXAMPLES "${is_debug_build}" CACHE BOOL "Whether to generate build infrastructure for the examples")
 set(ZEN_ENABLE_DEBUG_ASSERTIONS "${is_debug_build}" CACHE BOOL "Force the compiler to generate assertions for certain invariants")
 
-string(REPLACE "::" ";" zen_namespace_chunks "${ZEN_NAMESPACE}")
-
-set(zen_namespace_start "")
-set(zen_namespace_end "")
-foreach(name IN LISTS zen_namespace_chunks)
-  set(zen_namespace_start "${zen_namespace_start} namespace ${name} { ")
-  set(zen_namespace_end "${zen_namespace_end} } ")
-endforeach()
-
+if (NOT ZEN_NAMESPACE STREQUAL "")
+  message("-- Placing Zen++ in custom namespace ${ZEN_NAMESPACE}")
+endif()
 if (ZEN_ENABLE_DEBUG_ASSERTIONS)
   message("-- Compiling Zen++ with debug assertions enabled")
 endif()
@@ -45,20 +39,37 @@ add_library(
   zen
   ${zen_sources}
 )
+
 target_compile_definitions(
   zen
   PUBLIC
   "ZEN_ENABLE_DEBUG_ASSERTIONS=$<BOOL:${ZEN_ENABLE_DEBUG_ASSERTIONS}>"
-  ZEN_NAMESPACE=${ZEN_NAMESPACE}
-  "ZEN_NAMESPACE_START=${zen_namespace_start}"
-  "ZEN_NAMESPACE_END=${zen_namespace_end}"
 )
+
+if (NOT ZEN_NAMESPACE STREQUAL "")
+  string(REPLACE "::" ";" zen_namespace_chunks "${ZEN_NAMESPACE}")
+  set(zen_namespace_start "")
+  set(zen_namespace_end "")
+  foreach(name IN LISTS zen_namespace_chunks)
+    set(zen_namespace_start "${zen_namespace_start} namespace ${name} { ")
+    set(zen_namespace_end "${zen_namespace_end} } ")
+  endforeach()
+  target_compile_definitions(
+    zen
+    PUBLIC
+    ZEN_NAMESPACE=${ZEN_NAMESPACE}
+    "ZEN_NAMESPACE_START=${zen_namespace_start}"
+    "ZEN_NAMESPACE_END=${zen_namespace_end}"
+  )
+endif()
+
 target_include_directories(
   zen
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCDIR}>
 )
+
 target_compile_features(
   zen
   PUBLIC

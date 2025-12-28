@@ -5,18 +5,20 @@
 #include <optional>
 #include <type_traits>
 
-namespace zen {
+#include "zen/config.hpp"
 
-  template<typename T, typename Enabler = void>
-  struct derive_maybe {
-    using type = std::optional<T>;
-  };
+ZEN_NAMESPACE_START
 
-  // TODO Add a specialization for unicode_char that uses EOF as the `std::nullopt` marker.
+template<typename T, typename Enabler = void>
+struct derive_maybe {
+  using type = std::optional<T>;
+};
 
-  template<typename T>
-  using maybe = typename derive_maybe<T>::type;
+// TODO Add a specialization for unicode_char that uses EOF as the `std::nullopt` marker.
 
-}
+template<typename T>
+using maybe = typename derive_maybe<T>::type;
+
+ZEN_NAMESPACE_END
 
 #endif // #ifndef ZEN_OPTIONAL_HPP

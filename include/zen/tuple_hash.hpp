@@ -1,8 +1,10 @@
-
-#pragma once
+#ifndef ZEN_TUPLE_HASH_HPP
+#define ZEN_TUPLE_HASH_HPP
 
 #include <tuple>
 #include <functional>
+
+#include "zen/config.hpp"
 
 ZEN_NAMESPACE_START
 
@@ -35,7 +37,8 @@ template<class...Ts>
 struct std::hash<std::tuple<Ts...>> {
     std::size_t operator()(const std::tuple<Ts...>& t) const {
         const std::size_t begin = std::tuple_size<std::tuple<Ts...>>::value-1;
-        return zen::tuple_hash_impl<begin, Ts...>()(0, t);
+    return ::ZEN_NAMESPACE::tuple_hash_impl<begin, Ts...>()(0, t);
     }
 };
 
+#endif // of #ifndef ZEN_TUPLE_HASH_HPP

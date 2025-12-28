@@ -4,6 +4,8 @@
 #include <bit>
 #include <cstdint>
 
+#include "zen/config.hpp"
+
 ZEN_NAMESPACE_START
 
 // Some definitions taken from the LLVM project

@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 
+#include "zen/config.hpp"
 #include "zen/clone_ptr.hpp"
 #include "zen/config.hpp"
 #include "zen/string.hpp"
