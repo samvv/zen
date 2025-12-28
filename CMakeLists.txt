@@ -48,7 +48,7 @@ add_library(
 target_compile_definitions(
   zen
   PUBLIC
-  ZEN_ENABLE_DEBUG_ASSERTIONS=${ZEN_ENABLE_DEBUG_ASSERTIONS}
+  "ZEN_ENABLE_DEBUG_ASSERTIONS=$<BOOL:${ZEN_ENABLE_DEBUG_ASSERTIONS}>"
   ZEN_NAMESPACE=${ZEN_NAMESPACE}
   "ZEN_NAMESPACE_START=${zen_namespace_start}"
   "ZEN_NAMESPACE_END=${zen_namespace_end}"
