@@ -94,3 +94,12 @@ TEST(EitherTest, EitherValueCanBeCopied) {
   ASSERT_EQ(info.destroy_count, 3);
 }
 
+TEST(EitherTest, CanConstructVoidLeft) {
+  zen::either<void, int> foo = zen::left();
+  ASSERT_TRUE(foo.is_left());
+}
+
+TEST(EitherTest, CanConstructVoidRight) {
+  zen::either<int, void> foo = zen::right();
+  ASSERT_TRUE(foo.is_right());
+}

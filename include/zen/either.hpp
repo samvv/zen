@@ -94,6 +94,8 @@
 #ifndef ZEN_EITHER_HPP
 #define ZEN_EITHER_HPP
 
+#include <condition_variable>
+#include <type_traits>
 #include <utility>
 
 #include "zen/config.hpp"
@@ -101,49 +103,50 @@
 
 ZEN_NAMESPACE_START
 
+struct dummy {};
+
 /// @private
 template<typename L>
 struct left_t {
-  L value;
+  using storage_t = std::conditional_t<std::is_void_v<L>, dummy, L>;
+  storage_t value;
 };
 
 /// @private
 template<typename R>
 struct right_t {
-  R value;
+  using storage_t = std::conditional_t<std::is_void_v<R>, dummy, R>;
+  storage_t value;
 };
-
-/// @private
-template<>
-struct right_t<void> {};
-
 
 /// A type for computations that may fail.
 template<typename L, typename R>
 class either {
 
   template<typename L2, typename R2>
-  friend
-  class either;
+  friend class either;
 
-  struct dummy {};
+  using left_storage_t = std::conditional_t<std::is_void_v<L>, dummy, L>;
+  using right_storage_t = std::conditional_t<std::is_void_v<R>, dummy, R>;
 
   union {
-    L left_value;
-    R right_value;
+    left_storage_t left_value;
+    right_storage_t right_value;
   };
 
   bool has_right_v;
 
 public:
 
+  /// @private
   template<typename L2>
   inline either(left_t<L2>&& value): left_value(std::move(value.value)), has_right_v(false) {};
 
+  /// @private
   template<typename R2>
   inline either(right_t<R2>&& value): right_value(std::move(value.value)), has_right_v(true) {};
 
-  either(either &&other) : has_right_v(std::move(other.has_right_v)) {
+  either(either &&other): has_right_v(std::move(other.has_right_v)) {
     if (has_right_v) {
       new(&right_value)R(std::move(other.right_value));
     } else {
@@ -151,7 +154,7 @@ public:
     }
   }
 
-  either(const either &other) : has_right_v(other.has_right_v) {
+  either(const either &other): has_right_v(other.has_right_v) {
     if (has_right_v) {
       new(&right_value)R(other.right_value);
     } else {
@@ -200,13 +203,26 @@ public:
     return &right_value;
   }
 
-  R &operator*() {
+  template<typename T = R>
+  T &operator*() requires (!std::same_as<T, void>) {
     ZEN_ASSERT(has_right_v);
     return right_value;
   }
 
+  /// Return whether this either type has a value on the left side.
+  ///
+  /// If this method returns true, it is guaranteed that the either type does
+  /// not have a value on the right side. Conversely, if this method returns
+  /// false then it is guaranteed that the either type has a value on the right
+  /// side.
   bool is_left() const { return !has_right_v; }
 
+  /// Return whether this either type has a value on the right side.
+  ///
+  /// If this method returns true, it is guaranteed that the either type does
+  /// not have a value on the left side. Conversely, if this method returns
+  /// false then it is guaranteed that the either type has a value on the left
+  /// side.
   bool is_right() const { return has_right_v; }
 
   operator bool() const {
@@ -234,21 +250,29 @@ public:
     return left_value;
   }
 
-  L &left() {
+  /// Get a reference to the left-sided value of this either type.
+  template<typename T = L>
+  T &left() requires (!std::same_as<void, T>) {
     ZEN_ASSERT(!has_right_v);
     return left_value;
   }
 
-  R &right() {
+  /// Get a reference to the right-sided value of this either type.
+  template<typename T = R>
+  T &right() requires (!std::same_as<T, void>) {
     ZEN_ASSERT(has_right_v);
     return right_value;
   }
 
+  /// Move the left-sided value out of this either type, destroying the either
+  /// type in the processs.
   L take_left() && {
     ZEN_ASSERT(!has_right_v);
     return std::move(left_value);
   }
 
+  /// Move the right-sided value out of this either type, destroying the either
+  /// type in the processs.
   R take_right() && {
     ZEN_ASSERT(has_right_v);
     return std::move(right_value);
@@ -256,91 +280,23 @@ public:
 
   ~either() {
     if (has_right_v) {
-      right_value.~R();
+      right_value.~right_storage_t();
     } else {
-      left_value.~L();
+      left_value.~left_storage_t();
     }
   }
 
 };
 
-template<typename L>
-class either<L, void> {
-
-  struct dummy {};
-
-  union {
-    L left_value;
-  };
-
-  bool has_left;
-
-public:
-
-  /// @private
-  inline either(left_t<L> data): left_value(data.value), has_left(true) {};
-
-  /// @private
-  inline either(right_t<void>): has_left(false) {};
-
-  /// @private
-  template<typename L2>
-  inline either(left_t<L2> data): left_value(data.value), has_left(true) {};
-
-  /// @private
-  either(either&& other): has_left(other.has_left) {
-    if (other.has_left) {
-      left_value = std::move(other.left_value);
-    }
-  }
-
-  /// @private
-  either(const either& other): has_left(other.has_left) {
-    if (other.has_left) {
-      left_value = other.left_value;
-    }
-  }
-
-  /// Return whether this either type has a value on the left side.
-  ///
-  /// If this method returns true, it is guaranteed that the either type does
-  /// not have a value on the right side. Conversely, if this method returns
-  /// false then it is guaranteed that the either type has a value on the right
-  /// side.
-  bool is_left() {
-    return has_left;
-  }
-
-  /// Return whether this either type has a value on the right side.
-  ///
-  /// If this method returns true, it is guaranteed that the either type does
-  /// not have a value on the left side. Conversely, if this method returns
-  /// false then it is guaranteed that the either type has a value on the left
-  /// side.
-  bool is_right() {
-    return !has_left;
-  }
-
-  /// Get a copy of the left-sided value of this either type.
-  L& left() {
-    ZEN_ASSERT(has_left);
-    return left_value;
-  }
-
-  /// Move the left-sided value out of this either type, destroying the either
-  /// type in the processs.
-  L take_left() && {
-    ZEN_ASSERT(has_left);
-    return std::move(left_value);
-  }
-
-  ~either() {
-    if (has_left) {
-      left_value.~L();
-    }
-  }
-
-};
+/// Construct a left-valued either type that has no contents.
+///
+/// Usually, this means that the computation failed but no particular
+/// error needed to be specified.
+///
+/// In Rust, one would return `Err(())`.
+inline left_t<void> left() {
+  return left_t<void> {};
+}
 
 /// Construct a left-valued either type. The provided value will be copied into
 /// the either type.
