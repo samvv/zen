@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['is_5fleft_0',['is_left',['../classeither_3_01L_00_01void_01_4.html#ac3269f40140fff4850e9e3851d0b0a30',1,'either&lt; L, void &gt;']]],
-  ['is_5fright_1',['is_right',['../classeither_3_01L_00_01void_01_4.html#a166a7bab90957a6d7a0a4834886b7b90',1,'either&lt; L, void &gt;']]]
+  ['is_5fleft_0',['is_left',['../classeither.html#aa1ddccc466d04b06129ef3df07e4ba84',1,'either']]],
+  ['is_5fright_1',['is_right',['../classeither.html#ad7864f46b8cff548c16cfe175d9f0921',1,'either']]]
 ];

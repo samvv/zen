@@ -88,12 +88,6 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a47eac1f137ed01ec2361f0527ab414aa" id="r_a47eac1f137ed01ec2361f0527ab414aa"><td class="memTemplParams" colspan="2"><a id="a47eac1f137ed01ec2361f0527ab414aa" name="a47eac1f137ed01ec2361f0527ab414aa"></a>
-template&lt;typename L2&gt; </td></tr>
-<tr class="memitem:a47eac1f137ed01ec2361f0527ab414aa template"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><b>either</b> (left_t&lt; L2 &gt; &amp;&amp;<a class="el" href="classvalue.html">value</a>)</td></tr>
-<tr class="memitem:a0776972ca30e592b454804c91133ea6d" id="r_a0776972ca30e592b454804c91133ea6d"><td class="memTemplParams" colspan="2"><a id="a0776972ca30e592b454804c91133ea6d" name="a0776972ca30e592b454804c91133ea6d"></a>
-template&lt;typename R2&gt; </td></tr>
-<tr class="memitem:a0776972ca30e592b454804c91133ea6d template"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><b>either</b> (right_t&lt; R2 &gt; &amp;&amp;<a class="el" href="classvalue.html">value</a>)</td></tr>
 <tr class="memitem:ad25ed2675e168d26c1e330bee2ab7d20" id="r_ad25ed2675e168d26c1e330bee2ab7d20"><td class="memItemLeft" align="right" valign="top"><a id="ad25ed2675e168d26c1e330bee2ab7d20" name="ad25ed2675e168d26c1e330bee2ab7d20"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>either</b> (<a class="el" href="classeither.html">either</a> &amp;&amp;other)</td></tr>
 <tr class="memitem:acfa5dfcaacd2eb45eb0cbd8ce42a2daa" id="r_acfa5dfcaacd2eb45eb0cbd8ce42a2daa"><td class="memItemLeft" align="right" valign="top"><a id="acfa5dfcaacd2eb45eb0cbd8ce42a2daa" name="acfa5dfcaacd2eb45eb0cbd8ce42a2daa"></a>
@@ -110,12 +104,12 @@ template&lt;typename L2, typename R2&gt; </td></tr>
 <a class="el" href="classeither.html">either</a>&lt; L, R &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (<a class="el" href="classeither.html">either</a>&lt; L, R &gt; &amp;&amp;other)</td></tr>
 <tr class="memitem:a5b7cec8a0cc6d057ebcd9d59459ee397" id="r_a5b7cec8a0cc6d057ebcd9d59459ee397"><td class="memItemLeft" align="right" valign="top"><a id="a5b7cec8a0cc6d057ebcd9d59459ee397" name="a5b7cec8a0cc6d057ebcd9d59459ee397"></a>
 R *&#160;</td><td class="memItemRight" valign="bottom"><b>operator-&gt;</b> ()</td></tr>
-<tr class="memitem:a6673cf2137f727d135cac8a2839d4daf" id="r_a6673cf2137f727d135cac8a2839d4daf"><td class="memItemLeft" align="right" valign="top"><a id="a6673cf2137f727d135cac8a2839d4daf" name="a6673cf2137f727d135cac8a2839d4daf"></a>
-R &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator*</b> ()</td></tr>
-<tr class="memitem:aa1ddccc466d04b06129ef3df07e4ba84" id="r_aa1ddccc466d04b06129ef3df07e4ba84"><td class="memItemLeft" align="right" valign="top"><a id="aa1ddccc466d04b06129ef3df07e4ba84" name="aa1ddccc466d04b06129ef3df07e4ba84"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_left</b> () const</td></tr>
-<tr class="memitem:ad7864f46b8cff548c16cfe175d9f0921" id="r_ad7864f46b8cff548c16cfe175d9f0921"><td class="memItemLeft" align="right" valign="top"><a id="ad7864f46b8cff548c16cfe175d9f0921" name="ad7864f46b8cff548c16cfe175d9f0921"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_right</b> () const</td></tr>
+<tr class="memitem:a856b254c2f769e7a42f88dff983d7c3e" id="r_a856b254c2f769e7a42f88dff983d7c3e"><td class="memTemplParams" colspan="2"><a id="a856b254c2f769e7a42f88dff983d7c3e" name="a856b254c2f769e7a42f88dff983d7c3e"></a>
+template&lt;typename T = R&gt; <br />
+requires (!std::same_as&lt;T, void&gt;)</td></tr>
+<tr class="memitem:a856b254c2f769e7a42f88dff983d7c3e template"><td class="memItemLeft" align="right" valign="top">T &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator*</b> ()</td></tr>
+<tr class="memitem:aa1ddccc466d04b06129ef3df07e4ba84" id="r_aa1ddccc466d04b06129ef3df07e4ba84"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa1ddccc466d04b06129ef3df07e4ba84">is_left</a> () const</td></tr>
+<tr class="memitem:ad7864f46b8cff548c16cfe175d9f0921" id="r_ad7864f46b8cff548c16cfe175d9f0921"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad7864f46b8cff548c16cfe175d9f0921">is_right</a> () const</td></tr>
 <tr class="memitem:af00084857f38ec758d6a28eeb9422db2" id="r_af00084857f38ec758d6a28eeb9422db2"><td class="memItemLeft" align="right" valign="top"><a id="af00084857f38ec758d6a28eeb9422db2" name="af00084857f38ec758d6a28eeb9422db2"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>operator bool</b> () const</td></tr>
 <tr class="memitem:a4d4e0c7e2fd00516d3dc44b6626096ac" id="r_a4d4e0c7e2fd00516d3dc44b6626096ac"><td class="memItemLeft" align="right" valign="top"><a id="a4d4e0c7e2fd00516d3dc44b6626096ac" name="a4d4e0c7e2fd00516d3dc44b6626096ac"></a>
@@ -124,19 +118,138 @@ R&#160;</td><td class="memItemRight" valign="bottom"><b>unwrap</b> ()</td></tr>
 R&#160;</td><td class="memItemRight" valign="bottom"><b>unwrap</b> ()</td></tr>
 <tr class="memitem:a4c564cec782981720836a76c6a1428fe" id="r_a4c564cec782981720836a76c6a1428fe"><td class="memItemLeft" align="right" valign="top"><a id="a4c564cec782981720836a76c6a1428fe" name="a4c564cec782981720836a76c6a1428fe"></a>
 L&#160;</td><td class="memItemRight" valign="bottom"><b>unwrap_left</b> ()</td></tr>
-<tr class="memitem:a9a0dd4f0cf8b5d0f355b7e88e7624e46" id="r_a9a0dd4f0cf8b5d0f355b7e88e7624e46"><td class="memItemLeft" align="right" valign="top"><a id="a9a0dd4f0cf8b5d0f355b7e88e7624e46" name="a9a0dd4f0cf8b5d0f355b7e88e7624e46"></a>
-L &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>left</b> ()</td></tr>
-<tr class="memitem:a6dc4be3bb54c93fd8b283cf1427539ff" id="r_a6dc4be3bb54c93fd8b283cf1427539ff"><td class="memItemLeft" align="right" valign="top"><a id="a6dc4be3bb54c93fd8b283cf1427539ff" name="a6dc4be3bb54c93fd8b283cf1427539ff"></a>
-R &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>right</b> ()</td></tr>
-<tr class="memitem:ad5d41ea341404157b40897d20cf2d03a" id="r_ad5d41ea341404157b40897d20cf2d03a"><td class="memItemLeft" align="right" valign="top"><a id="ad5d41ea341404157b40897d20cf2d03a" name="ad5d41ea341404157b40897d20cf2d03a"></a>
-L&#160;</td><td class="memItemRight" valign="bottom"><b>take_left</b> () &amp;&amp;</td></tr>
-<tr class="memitem:a8e6c88932d0a44eb21fbad708b74149e" id="r_a8e6c88932d0a44eb21fbad708b74149e"><td class="memItemLeft" align="right" valign="top"><a id="a8e6c88932d0a44eb21fbad708b74149e" name="a8e6c88932d0a44eb21fbad708b74149e"></a>
-R&#160;</td><td class="memItemRight" valign="bottom"><b>take_right</b> () &amp;&amp;</td></tr>
+<tr class="memitem:ab5307d93ebfa4ce0eec2d9af3b9a542b" id="r_ab5307d93ebfa4ce0eec2d9af3b9a542b"><td class="memTemplParams" colspan="2"><a id="ab5307d93ebfa4ce0eec2d9af3b9a542b" name="ab5307d93ebfa4ce0eec2d9af3b9a542b"></a>
+template&lt;typename T = L&gt; <br />
+requires (!std::same_as&lt;void, T&gt;)</td></tr>
+<tr class="memitem:ab5307d93ebfa4ce0eec2d9af3b9a542b template"><td class="memItemLeft" align="right" valign="top">T &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>left</b> ()</td></tr>
+<tr class="memdesc:ab5307d93ebfa4ce0eec2d9af3b9a542b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a reference to the left-sided value of this either type. <br /></td></tr>
+<tr class="memitem:a65c56675fedc0b6152e6d4f2fe182039" id="r_a65c56675fedc0b6152e6d4f2fe182039"><td class="memTemplParams" colspan="2"><a id="a65c56675fedc0b6152e6d4f2fe182039" name="a65c56675fedc0b6152e6d4f2fe182039"></a>
+template&lt;typename T = R&gt; <br />
+requires (!std::same_as&lt;T, void&gt;)</td></tr>
+<tr class="memitem:a65c56675fedc0b6152e6d4f2fe182039 template"><td class="memItemLeft" align="right" valign="top">T &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>right</b> ()</td></tr>
+<tr class="memdesc:a65c56675fedc0b6152e6d4f2fe182039"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a reference to the right-sided value of this either type. <br /></td></tr>
+<tr class="memitem:ad5d41ea341404157b40897d20cf2d03a" id="r_ad5d41ea341404157b40897d20cf2d03a"><td class="memItemLeft" align="right" valign="top">L&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad5d41ea341404157b40897d20cf2d03a">take_left</a> () &amp;&amp;</td></tr>
+<tr class="memitem:a8e6c88932d0a44eb21fbad708b74149e" id="r_a8e6c88932d0a44eb21fbad708b74149e"><td class="memItemLeft" align="right" valign="top">R&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8e6c88932d0a44eb21fbad708b74149e">take_right</a> () &amp;&amp;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename L, typename R&gt;<br />
 class either&lt; L, R &gt;</div><p>A type for computations that may fail. </p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
+<a id="aa1ddccc466d04b06129ef3df07e4ba84" name="aa1ddccc466d04b06129ef3df07e4ba84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa1ddccc466d04b06129ef3df07e4ba84">&#9670;&#160;</a></span>is_left()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename L, typename R&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classeither.html">either</a>&lt; L, R &gt;::is_left </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return whether this either type has a value on the left side.</p>
+<p>If this method returns true, it is guaranteed that the either type does not have a value on the right side. Conversely, if this method returns false then it is guaranteed that the either type has a value on the right side. </p>
+
+</div>
+</div>
+<a id="ad7864f46b8cff548c16cfe175d9f0921" name="ad7864f46b8cff548c16cfe175d9f0921"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7864f46b8cff548c16cfe175d9f0921">&#9670;&#160;</a></span>is_right()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename L, typename R&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classeither.html">either</a>&lt; L, R &gt;::is_right </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Return whether this either type has a value on the right side.</p>
+<p>If this method returns true, it is guaranteed that the either type does not have a value on the left side. Conversely, if this method returns false then it is guaranteed that the either type has a value on the left side. </p>
+
+</div>
+</div>
+<a id="ad5d41ea341404157b40897d20cf2d03a" name="ad5d41ea341404157b40897d20cf2d03a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5d41ea341404157b40897d20cf2d03a">&#9670;&#160;</a></span>take_left()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename L, typename R&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">L <a class="el" href="classeither.html">either</a>&lt; L, R &gt;::take_left </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> &amp;&amp;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Move the left-sided value out of this either type, destroying the either type in the processs. </p>
+
+</div>
+</div>
+<a id="a8e6c88932d0a44eb21fbad708b74149e" name="a8e6c88932d0a44eb21fbad708b74149e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e6c88932d0a44eb21fbad708b74149e">&#9670;&#160;</a></span>take_right()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename L, typename R&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">R <a class="el" href="classeither.html">either</a>&lt; L, R &gt;::take_right </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> &amp;&amp;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Move the right-sided value out of this either type, destroying the either type in the processs. </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/zen/<a class="el" href="either_8hpp_source.html">either.hpp</a></li>
 </ul>
 </div><!-- contents -->
