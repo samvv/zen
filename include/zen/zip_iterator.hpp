@@ -23,14 +23,6 @@ ZEN_NAMESPACE_START
 template<typename IterT>
 using iterator_category_t = std::iterator_traits<IterT>::iterator_category;
 
-template<typename T>
-struct to_hana_tuple_t;
-
-template<typename ...Ts>
-struct to_hana_tuple_t<std::tuple<Ts...>> {
-  static constexpr auto value = hana::make_tuple(hana::type_c<Ts>...);
-};
-
 constexpr auto _iterator_categories = to_hana_tuple_t<std::tuple<
   std::input_iterator_tag
 , std::forward_iterator_tag
@@ -63,21 +55,6 @@ constexpr auto _iterator_category_tag_index(T element) {
   ).value();
 }
 
-template<typename T, typename Fn, typename I>
-constexpr auto min_by(T&& seq, Fn&& get, I&& init) {
-  return hana::fold(
-    seq,
-    init,
-    [&](auto a, auto b) {
-      return hana::if_(
-        hana::less(get(a), get(b)),
-        a,
-        b
-      );
-    }
-  );
-}
-
 /// An iterator that merges multiple other iterators.
 template<typename T>
 class zip_iterator {
@@ -89,7 +66,7 @@ public:
   using value_type = decltype(
     +hana::unpack(
       hana::transform(
-        to_hana_tuple_t<T>::value,
+        to_hana_type_tuple<T>::value,
         [](auto t) {
           using It = typename decltype(t)::type;
           return hana::type_c<std::iter_value_t<It>>;
@@ -113,7 +90,7 @@ public:
   using iterator_category = decltype(
     +min_by(
       hana::transform(
-        to_hana_tuple_t<T>::value,
+        to_hana_type_tuple<T>::value,
         [](auto el) { return hana::type_c<iterator_category_t<typename decltype(+el)::type>>; }
       ),
       [](auto el) {
