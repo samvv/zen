@@ -3,6 +3,8 @@
 #ifndef ZEN_ITERATOR_RANGE_HPP
 #define ZEN_ITERATOR_RANGE_HPP
 
+#include <boost/hana/fwd/tuple.hpp>
+#include <istream>
 #include <iterator>
 #include <tuple>
 #include <type_traits>
@@ -127,6 +129,23 @@ struct _zip_accept_rvalue : std::false_type {};
 template<typename IterT>
 struct _zip_accept_rvalue<iterator_range<IterT>> : std::true_type {};
 
+template<typename ...Ts>
+struct is_zippable {
+  static constexpr bool value = hana::all(
+    hana::transform(
+      hana::make_tuple(hana::type_c<Ts>...),
+      [](auto t) {
+        using T = decltype(+t)::type;
+        return std::is_lvalue_reference_v<T>
+            || _zip_accept_rvalue<std::remove_reference_t<T>>::value;
+      }
+    )
+  );
+};
+
+template<typename ...Ts>
+using is_zippable_v = is_zippable<Ts...>::value;
+
 /// Create an @ref iterator_range that zips over the given arguments.
 ///
 /// To create a zipper that only holds constant references, use [std::as_const][1]
@@ -134,19 +153,10 @@ struct _zip_accept_rvalue<iterator_range<IterT>> : std::true_type {};
 /// [1]: https://en.cppreference.com/w/cpp/utility/as_const.html
 template<range ...Ts>
 auto zip(Ts&& ...args) {
-  // TODO
-  // static_assert(
-  //   meta::andmap_v<
-  //     meta::bind<
-  //       std::disjunction<
-  //         std::is_lvalue_reference<meta::_1>,
-  //         _zip_accept_rvalue<std::remove_reference_t<meta::_1>>
-  //       >
-  //     >,
-  //     std::tuple<Ts...>
-  //   >,
-  //   "the provided value cannot be passed in as an rvalue"
-  // );
+  static_assert(
+    is_zippable<Ts...>::value,
+    "the provided value cannot be passed in as an rvalue"
+  );
   return make_iterator_range(
     zip(std::begin(args)...),
     zip(std::end(args)...)

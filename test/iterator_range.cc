@@ -6,9 +6,11 @@
 // NOTE This must be manually tested
 // TEST(RangeTest, ErrorsWhenPassingInLValueContainer) {
 //   std::vector v1 { 10, 11, 12 };
-//   zen::zip(std::vector { 1, 2, 3 }, std::vector { 6, 7, 8 });
-//   zen::zip(v1, std::vector { 6, 7, 8 });
-//   zen::zip(std::vector { 6, 7, 8 }, v1);
+//   zen::zip(std::vector { 1, 2, 3 }, std::vector { 6, 7, 8 }); // Error
+//   zen::zip(v1, std::vector { 6, 7, 8 }); // Error
+//   zen::zip(std::vector { 6, 7, 8 }, v1); // Error
+//   zen::zip(v1, v1); // OK
+//   zen::zip(zen::make_iterator_range(v1.begin(), v1.end()), v1); // OK
 // }
 
 TEST(RangeTest, CanZipMixed) {
