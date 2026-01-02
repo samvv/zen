@@ -4,8 +4,8 @@
 #include "zen/bytestring.hpp"
 #include "zen/iterator_range.hpp"
 
-static_assert(zen::RangeLike<const zen::bytestring>);
-static_assert(zen::RangeLike<const zen::bytestring_view>);
+static_assert(zen::range<const zen::bytestring>);
+static_assert(zen::range<const zen::bytestring_view>);
 
 TEST(ByteStringTest, CanConstructFromStringLiteral) {
   zen::bytestring a = "foo";

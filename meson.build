@@ -47,7 +47,6 @@ endif
 zen_lib = static_library(
   'zen',
   'src/json.cc',
-  'src/filepath.cc',
   'src/unicode.cc',
   'src/msgpack.cc',
   'src/po.cc',

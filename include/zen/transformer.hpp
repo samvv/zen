@@ -1,14 +1,10 @@
 #ifndef ZEN_TRANSFORMER_HPP
 #define ZEN_TRANSFORMER_HPP
 
-#include <iterator>
-#include <sstream>
-#include <type_traits>
-#include <memory>
 #include <optional>
 
 #include "zen/config.hpp"
-#include "zen/meta.hpp"
+#include "zen/concepts.hpp"
 
 ZEN_NAMESPACE_START
 
@@ -16,16 +12,10 @@ class transformer;
 class sequence_transformer;
 class object_transformer;
 
-template<typename T, typename = void>
-struct has_transform_method : std::false_type {};
-
 template<typename T>
-struct has_transform_method<T,
-    std::void_t<decltype(std::declval<T&>().transform(std::declval<transformer&>()))>
-    > : std::true_type { };
-
-template<typename T>
-static constexpr const bool has_transform_method_v = has_transform_method<T>::value;
+concept can_transform = requires (T& t) {
+  t.transform(std::declval<transformer&>());
+};
 
 class transformer {
 public:
@@ -66,14 +56,14 @@ public:
   template<typename T1, typename T2>
   void transform(std::pair<T1, T2>& value);
 
-  template<typename T>
-  std::enable_if_t<meta::is_pointer_v<T>> transform(T& value);
+  template<pointer T>
+  void transform(T& value);
 
-  template<typename T>
-  std::enable_if_t<meta::is_container_v<T>> transform(T& value);
+  template<container T>
+  void transform(T& value);
 
-  template<typename T>
-  std::enable_if_t<has_transform_method_v<T>> transform(T& value);
+  template<can_transform T>
+  void transform(T& value);
 
   object_transformer transform_object(const std::string& tag_name);
   sequence_transformer transform_sequence(std::size_t size);
@@ -190,8 +180,8 @@ void transformer::transform(std::pair<T1, T2>& value) {
   end_transform_sequence();
 }
 
-template<typename T>
-std::enable_if_t<meta::is_container_v<T>> transformer::transform(T& value) {
+template<container T>
+void transformer::transform(T& value) {
   start_transform_sequence();
   transform_size(value.size());
   for (const auto& element: value) {
@@ -202,8 +192,8 @@ std::enable_if_t<meta::is_container_v<T>> transformer::transform(T& value) {
   end_transform_sequence();
 }
 
-template<typename T>
-std::enable_if_t<meta::is_pointer_v<T>> transformer::transform(T& value) {
+template<pointer T>
+void transformer::transform(T& value) {
   start_transform_optional();
   if (value == nullptr) {
     transform_nil();
@@ -213,8 +203,8 @@ std::enable_if_t<meta::is_pointer_v<T>> transformer::transform(T& value) {
   end_transform_optional();
 }
 
-template<typename T>
-std::enable_if_t<has_transform_method_v<T>> transformer::transform(T& value) {
+template<can_transform T>
+void transformer::transform(T& value) {
   value.transform(*this);
 }
 
@@ -225,8 +215,6 @@ void decode(transformer& decoder, T& value) {
   value.transform_fields(s);
   s.finalize();
 }
-
-
 
 ZEN_NAMESPACE_END
 

@@ -1,35 +1,84 @@
+/// @file
+/// @brief Definitions for an iterator that merges several other iteerators.
+
 #ifndef ZEN_ZIP_ITERATOR_HPP
 #define ZEN_ZIP_ITERATOR_HPP
 
 #include <algorithm>
+#include <boost/hana/fwd/fold.hpp>
+#include <boost/hana/fwd/index_if.hpp>
+#include <boost/hana/fwd/tuple.hpp>
+#include <boost/hana/fwd/type.hpp>
 #include <cstddef>
 #include <iterator>
 #include <tuple>
-#include <type_traits>
 #include <utility>
 
 #include "zen/config.hpp"
-#include "zen/meta.hpp"
+#include "zen/hana.hpp"
 #include "zen/algorithm.hpp"
 
 ZEN_NAMESPACE_START
 
 template<typename IterT>
-struct _get_iterator_category {
-  using type = std::iterator_traits<IterT>::iterator_category;
+using iterator_category_t = std::iterator_traits<IterT>::iterator_category;
+
+template<typename T>
+struct to_hana_tuple_t;
+
+template<typename ...Ts>
+struct to_hana_tuple_t<std::tuple<Ts...>> {
+  static constexpr auto value = hana::make_tuple(hana::type_c<Ts>...);
 };
 
-using tags = std::tuple<
+constexpr auto _iterator_categories = to_hana_tuple_t<std::tuple<
   std::input_iterator_tag
 , std::forward_iterator_tag
 , std::bidirectional_iterator_tag
 , std::random_access_iterator_tag
-, std::output_iterator_tag
->;
+, std::contiguous_iterator_tag
+>>::value;
+
+// template<typename T>
+// struct common_iterator_category : meta::fold1<
+//     meta::bind<
+//       meta::min_by_t<
+//         meta::index_t<tags, meta::_1>,
+//         meta::map_t<T, meta::bind<iterator_category_t<meta::_1>>>,
+//         std::contiguous_iterator_tag
+//       >
+//     >,
+//     T
+//   > {};
+
+// template<typename T>
+// using common_iterator_category_t = common_iterator_category<T>::type;
+//
 
 template<typename T>
-class zip_iterator;
+constexpr auto _iterator_category_tag_index(T element) {
+  return hana::index_if(
+    _iterator_categories,
+    [&](const auto& x) { return hana::equal(x, element); }
+  ).value();
+}
 
+template<typename T, typename Fn, typename I>
+constexpr auto min_by(T&& seq, Fn&& get, I&& init) {
+  return hana::fold(
+    seq,
+    init,
+    [&](auto a, auto b) {
+      return hana::if_(
+        hana::less(get(a), get(b)),
+        a,
+        b
+      );
+    }
+  );
+}
+
+/// An iterator that merges multiple other iterators.
 template<typename T>
 class zip_iterator {
 
@@ -37,7 +86,18 @@ class zip_iterator {
 
 public:
 
-  using value_type = meta::map_t<T, meta::lift<meta::get_element<meta::_1>>>;
+  using value_type = decltype(
+    +hana::unpack(
+      hana::transform(
+        to_hana_tuple_t<T>::value,
+        [](auto t) {
+          using It = typename decltype(t)::type;
+          return hana::type_c<std::iter_value_t<It>>;
+        }
+      ),
+      hana::template_<std::tuple>
+    )
+  )::type;
 
   /**
    * Because we always return a freshly constructed tuple (an rvalue), we cannot
@@ -50,10 +110,21 @@ public:
 
   using difference_type = std::ptrdiff_t;
 
-  // TODO Compute the lowest common iterator category from the elements
-  using iterator_category = std::random_access_iterator_tag;
-  // static_assert(meta::index_t<tags,std::input_iterator_tag>::value == 0);
-  // using iterator_category = meta::fold1_t<meta::lift<meta::min_by_t<meta::lift<meta::index_t<tags, meta::_1>>, std::tuple<meta::_1, _get_iterator_category<meta::_2>>, std::input_iterator_tag>>, T>;
+  using iterator_category = decltype(
+    +min_by(
+      hana::transform(
+        to_hana_tuple_t<T>::value,
+        [](auto el) { return hana::type_c<iterator_category_t<typename decltype(+el)::type>>; }
+      ),
+      [](auto el) {
+        return _iterator_category_tag_index(el);
+      },
+      hana::type_c<std::random_access_iterator_tag>
+    )
+  )::type;
+
+  // using iterator_category = std::random_access_iterator_tag;
+  // using iterator_category = common_iterator_category<T>;
 
   zip_iterator(T iterators):
     iterators(iterators) {}

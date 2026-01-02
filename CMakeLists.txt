@@ -21,6 +21,8 @@ if (ZEN_ENABLE_DEBUG_ASSERTIONS)
   message("-- Compiling Zen++ with debug assertions enabled")
 endif()
 
+#add_subdirectory(subprojects/hana EXCLUDE_FROM_ALL)
+
 # This must be added before doing any other configuration so that
 # changing something local doesn't trigger a GoogleTest rebuild
 if (ZEN_ENABLE_TESTS)
@@ -104,7 +106,6 @@ if (ZEN_ENABLE_TESTS)
     test/graph.cc
     test/json.cc
     test/mapped_iterator.cc
-    test/meta.cc
     test/po.cc
     test/pool.cc
     test/iterator_range.cc

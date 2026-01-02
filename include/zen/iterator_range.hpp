@@ -9,7 +9,7 @@
 #include <utility>
 
 #include "zen/config.hpp"
-#include "zen/meta.hpp"
+#include "zen/concepts.hpp"
 #include "zen/compat.hpp"
 #include "zen/mapped_iterator.hpp"
 #include "zen/zip_iterator.hpp"
@@ -108,16 +108,7 @@ auto make_iterator_range(std::pair<IterT, IterT>&& pair) {
   return iterator_range<IterT> { std::forward<IterT>(pair.first), std::forward<IterT>(pair.second) };
 }
 
-template<typename T>
-concept RangeLike = requires (T& a) {
-  { a.begin() } -> std::input_iterator;
-  { a.end() } -> std::input_iterator;
-};
-
-template<typename T>
-concept ConstRangeLike = RangeLike<T> && std::same_as<iter_const_reference_t<T>, std::iter_reference_t<T>>;
-
-template<RangeLike T>
+template<range T>
 auto make_iterator_range(T& container) {
   return make_iterator_range(
     std::begin(container),
@@ -141,20 +132,21 @@ struct _zip_accept_rvalue<iterator_range<IterT>> : std::true_type {};
 /// To create a zipper that only holds constant references, use [std::as_const][1]
 ///
 /// [1]: https://en.cppreference.com/w/cpp/utility/as_const.html
-template<RangeLike ...Ts>
+template<range ...Ts>
 auto zip(Ts&& ...args) {
-  static_assert(
-    meta::andmap_v<
-      meta::lift<
-        std::disjunction<
-          std::is_lvalue_reference<meta::_1>,
-          _zip_accept_rvalue<std::remove_reference_t<meta::_1>>
-        >
-      >,
-      std::tuple<Ts...>
-    >,
-    "the provided value cannot be passed in as an rvalue"
-  );
+  // TODO
+  // static_assert(
+  //   meta::andmap_v<
+  //     meta::bind<
+  //       std::disjunction<
+  //         std::is_lvalue_reference<meta::_1>,
+  //         _zip_accept_rvalue<std::remove_reference_t<meta::_1>>
+  //       >
+  //     >,
+  //     std::tuple<Ts...>
+  //   >,
+  //   "the provided value cannot be passed in as an rvalue"
+  // );
   return make_iterator_range(
     zip(std::begin(args)...),
     zip(std::end(args)...)

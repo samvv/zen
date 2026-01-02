@@ -1,11 +1,11 @@
 #ifndef ZEN_ALGORITHM_HPP
 #define ZEN_ALGORITHM_HPP
 
-#include <algorithm>
+#include <cstddef>
 #include <vector>
 
 #include "zen/config.hpp"
-#include "zen/meta.hpp"
+#include "zen/concepts.hpp"
 
 ZEN_NAMESPACE_START
 
@@ -54,7 +54,7 @@ auto increment(T& value) {
 }
 
 template<typename T>
-T prev_n(T value, meta::difference_t<T> n) {
+T prev_n(T value, std::ptrdiff_t n) {
   auto curr = value;
   for (std::ptrdiff_t i = 0; i < n; i++) {
     decrement(curr);
@@ -64,7 +64,7 @@ T prev_n(T value, meta::difference_t<T> n) {
 
 template<typename T, typename = void>
 struct next_n_impl {
-  static T apply(T& value, meta::difference_t<T> n) {
+  static T apply(T& value, std::ptrdiff_t n) {
     auto curr = value;
     for (std::ptrdiff_t i = 0; i < n; i++) {
       increment(curr);
@@ -74,7 +74,7 @@ struct next_n_impl {
 };
 
 template<typename T>
-T next_n(T& value, meta::difference_t<T> n) {
+T next_n(T& value, std::ptrdiff_t n) {
   return next_n_impl<T>::apply(value, n);
 }
 
@@ -119,8 +119,8 @@ std::vector<T> collect(const C elements) {
   return out;
 }
 
-template<typename RangeT>
-typename meta::get_element_t<RangeT> last(RangeT range) {
+template<range RangeT>
+range_reference_t<RangeT> last(RangeT range) {
   auto prev = range.begin();
   auto curr = prev;
   auto end = range.end();
