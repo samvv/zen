@@ -136,8 +136,10 @@ struct is_zippable {
       hana::make_tuple(hana::type_c<Ts>...),
       [](auto t) {
         using T = decltype(+t)::type;
-        return std::is_lvalue_reference_v<T>
-            || _zip_accept_rvalue<std::remove_reference_t<T>>::value;
+        return range<T> && (
+          std::is_lvalue_reference_v<T>
+          || _zip_accept_rvalue<std::remove_reference_t<T>>::value
+        );
       }
     )
   );
