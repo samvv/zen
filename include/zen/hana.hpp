@@ -11,8 +11,8 @@ namespace hana = boost::hana;
 template<typename T, typename Fn, typename I>
 constexpr auto min_by(T&& seq, Fn&& get, I&& init) {
   return hana::fold(
-    seq,
-    init,
+    std::move(seq),
+    std::move(init),
     [&](auto a, auto b) {
       return hana::if_(
         hana::less(get(a), get(b)),
