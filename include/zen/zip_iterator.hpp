@@ -23,7 +23,7 @@ ZEN_NAMESPACE_START
 template<typename IterT>
 using iterator_category_t = std::iterator_traits<IterT>::iterator_category;
 
-constexpr auto _iterator_categories = to_hana_tuple_t<std::tuple<
+constexpr auto _iterator_categories = to_hana_type_tuple<std::tuple<
   std::input_iterator_tag
 , std::forward_iterator_tag
 , std::bidirectional_iterator_tag
