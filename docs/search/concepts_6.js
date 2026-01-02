@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['tuple_5flike_0',['tuple_like',['../concepttuple__like.html',1,'']]]
+  ['strict_5funsigned_5fintegral_0',['strict_unsigned_integral',['../conceptstrict__unsigned__integral.html',1,'']]]
 ];

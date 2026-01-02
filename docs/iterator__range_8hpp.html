@@ -80,7 +80,6 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#concepts">Concepts</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">iterator_range.hpp File Reference</div></div>
 </div><!--header-->
@@ -93,10 +92,10 @@ $(function() {
 <code>#include &lt;type_traits&gt;</code><br />
 <code>#include &lt;utility&gt;</code><br />
 <code>#include &quot;zen/config.hpp&quot;</code><br />
-<code>#include &quot;zen/meta.hpp&quot;</code><br />
+<code>#include &quot;zen/concepts.hpp&quot;</code><br />
 <code>#include &quot;zen/compat.hpp&quot;</code><br />
 <code>#include &quot;zen/mapped_iterator.hpp&quot;</code><br />
-<code>#include &quot;zen/zip_iterator.hpp&quot;</code><br />
+<code>#include &quot;<a class="el" href="zip__iterator_8hpp_source.html">zen/zip_iterator.hpp</a>&quot;</code><br />
 </div>
 <p><a href="iterator__range_8hpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -106,11 +105,6 @@ Classes</h2></td></tr>
 <tr class="memitem:_5Fzip_5Faccept_5Frvalue_3C_20T_20_3E" id="r__5Fzip_5Faccept_5Frvalue_3C_20T_20_3E"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__zip__accept__rvalue.html">_zip_accept_rvalue&lt; T &gt;</a></td></tr>
 <tr class="memitem:_5Fzip_5Faccept_5Frvalue_3C_20iterator_5Frange_3C_20IterT_20_3E_20_3E" id="r__5Fzip_5Faccept_5Frvalue_3C_20iterator_5Frange_3C_20IterT_20_3E_20_3E"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct__zip__accept__rvalue_3_01iterator__range_3_01IterT_01_4_01_4.html">_zip_accept_rvalue&lt; iterator_range&lt; IterT &gt; &gt;</a></td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-concepts" class="groupheader"><a id="concepts" name="concepts"></a>
-Concepts</h2></td></tr>
-<tr class="memitem:RangeLike" id="r_RangeLike"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptRangeLike.html">RangeLike</a></td></tr>
-<tr class="memitem:ConstRangeLike" id="r_ConstRangeLike"><td class="memItemLeft" align="right" valign="top">concept &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="conceptConstRangeLike.html">ConstRangeLike</a></td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a5b00c7eb3492f9ebd9a06346dab756b6" id="r_a5b00c7eb3492f9ebd9a06346dab756b6"><td class="memTemplParams" colspan="2">template&lt;typename IterT&gt; </td></tr>
@@ -118,9 +112,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a5847e278ef384d8e97da0849cb74f261" id="r_a5847e278ef384d8e97da0849cb74f261"><td class="memTemplParams" colspan="2">template&lt;typename IterT&gt; </td></tr>
 <tr class="memitem:a5847e278ef384d8e97da0849cb74f261 template"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5847e278ef384d8e97da0849cb74f261">make_iterator_range</a> (std::pair&lt; IterT, IterT &gt; &amp;&amp;pair)</td></tr>
 <tr class="memitem:a6d5167b2c2aa39b2147493153746f0f6" id="r_a6d5167b2c2aa39b2147493153746f0f6"><td class="memTemplParams" colspan="2"><a id="a6d5167b2c2aa39b2147493153746f0f6" name="a6d5167b2c2aa39b2147493153746f0f6"></a>
-template&lt;<a class="el" href="conceptRangeLike.html">RangeLike</a> T&gt; </td></tr>
-<tr class="memitem:a6d5167b2c2aa39b2147493153746f0f6 template"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><b>make_iterator_range</b> (T &amp;container)</td></tr>
-<tr class="memitem:a9caaa3d877c404c2034f769ac8f83526" id="r_a9caaa3d877c404c2034f769ac8f83526"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="conceptRangeLike.html">RangeLike</a> ... Ts&gt; </td></tr>
+template&lt;<a class="el" href="conceptrange.html">range</a> T&gt; </td></tr>
+<tr class="memitem:a6d5167b2c2aa39b2147493153746f0f6 template"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><b>make_iterator_range</b> (T &amp;<a class="el" href="conceptcontainer.html">container</a>)</td></tr>
+<tr class="memitem:a9caaa3d877c404c2034f769ac8f83526" id="r_a9caaa3d877c404c2034f769ac8f83526"><td class="memTemplParams" colspan="2">template&lt;<a class="el" href="conceptrange.html">range</a> ... Ts&gt; </td></tr>
 <tr class="memitem:a9caaa3d877c404c2034f769ac8f83526 template"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9caaa3d877c404c2034f769ac8f83526">zip</a> (Ts &amp;&amp;...args)</td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
@@ -193,7 +187,7 @@ template&lt;typename IterT&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;<a class="el" href="conceptRangeLike.html">RangeLike</a> ... Ts&gt; </div>
+template&lt;<a class="el" href="conceptrange.html">range</a> ... Ts&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">auto zip </td>

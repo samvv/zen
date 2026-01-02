@@ -110,7 +110,7 @@ $(function() {
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  <span class="keyword">using </span>difference_type = traits::difference_type;</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <span class="keyword">using </span>pointer = traits::pointer;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  <span class="keyword">using </span><a class="code hl_concept" href="conceptpointer.html">pointer</a> = traits::pointer;</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  mapped_iterator(IterT iterator, F func):</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    iterator(iterator), func(func) {}</div>
@@ -180,7 +180,7 @@ $(function() {
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>{</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keyword">using </span>difference_type = ZEN_NAMESPACE::mapped_iterator&lt;IterT, F&gt;::difference_type;</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="keyword">using </span>value_type = ZEN_NAMESPACE::mapped_iterator&lt;IterT, F&gt;::value_type;</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keyword">using </span>pointer = ZEN_NAMESPACE::mapped_iterator&lt;IterT, F&gt;::pointer;</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keyword">using </span><a class="code hl_concept" href="conceptpointer.html">pointer</a> = ZEN_NAMESPACE::mapped_iterator&lt;IterT, F&gt;::pointer;</div>
 <div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="keyword">using </span>reference = ZEN_NAMESPACE::mapped_iterator&lt;IterT, F&gt;::reference;</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <span class="keyword">using </span>iterator_category = ZEN_NAMESPACE::mapped_iterator&lt;IterT, F&gt;::iterator_category;</div>
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>};</div>
@@ -190,6 +190,7 @@ $(function() {
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
 <div class="ttc" id="aclassmapped__iterator_html"><div class="ttname"><a href="classmapped__iterator.html">mapped_iterator</a></div><div class="ttdef"><b>Definition</b> mapped_iterator.hpp:12</div></div>
 <div class="ttc" id="aclassmapped__iterator_html_aabd12f9844f01760216b12837c70862d"><div class="ttname"><a href="classmapped__iterator.html#aabd12f9844f01760216b12837c70862d">mapped_iterator::reference</a></div><div class="ttdeci">value_type reference</div><div class="ttdef"><b>Definition</b> mapped_iterator.hpp:30</div></div>
+<div class="ttc" id="aconceptpointer_html"><div class="ttname"><a href="conceptpointer.html">pointer</a></div><div class="ttdef"><b>Definition</b> concepts.hpp:45</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

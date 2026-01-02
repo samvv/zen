@@ -81,18 +81,21 @@ $(function() {
   <div class="headertitle"><div class="title">zip_iterator&lt; T &gt; Class Template Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>An iterator that merges multiple other iterators.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="zip__iterator_8hpp_source.html">zip_iterator.hpp</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-types" class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a81cdd985a0b1535e8b06c7818dc8f6e7" id="r_a81cdd985a0b1535e8b06c7818dc8f6e7"><td class="memItemLeft" align="right" valign="top"><a id="a81cdd985a0b1535e8b06c7818dc8f6e7" name="a81cdd985a0b1535e8b06c7818dc8f6e7"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>value_type</b> = meta::map_t&lt;T, <a class="el" href="structmeta_1_1lift.html">meta::lift</a>&lt;<a class="el" href="structmeta_1_1get__element.html">meta::get_element</a>&lt;<a class="el" href="structmeta_1_1__1.html">meta::_1</a>&gt;&gt;&gt;</td></tr>
+<tr class="memitem:ac18e42ca0ba0e727d94ad3e5255e9a85" id="r_ac18e42ca0ba0e727d94ad3e5255e9a85"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac18e42ca0ba0e727d94ad3e5255e9a85">value_type</a></td></tr>
 <tr class="memitem:a9e9d101149821d94f593366cb77d51d7" id="r_a9e9d101149821d94f593366cb77d51d7"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9e9d101149821d94f593366cb77d51d7">reference</a> = value_type</td></tr>
 <tr class="memitem:addad7849436e71ca869050f29f027a13" id="r_addad7849436e71ca869050f29f027a13"><td class="memItemLeft" align="right" valign="top"><a id="addad7849436e71ca869050f29f027a13" name="addad7849436e71ca869050f29f027a13"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>pointer</b> = value_type*</td></tr>
 <tr class="memitem:a81309179b66090f12b2aba4274c0139d" id="r_a81309179b66090f12b2aba4274c0139d"><td class="memItemLeft" align="right" valign="top"><a id="a81309179b66090f12b2aba4274c0139d" name="a81309179b66090f12b2aba4274c0139d"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>difference_type</b> = std::ptrdiff_t</td></tr>
-<tr class="memitem:a657cebc8afb61cca4d9a44c4500a21f4" id="r_a657cebc8afb61cca4d9a44c4500a21f4"><td class="memItemLeft" align="right" valign="top"><a id="a657cebc8afb61cca4d9a44c4500a21f4" name="a657cebc8afb61cca4d9a44c4500a21f4"></a>
-using&#160;</td><td class="memItemRight" valign="bottom"><b>iterator_category</b> = std::random_access_iterator_tag</td></tr>
+<tr class="memitem:ade70ccbc2ba3db6ba572518f408c7f11" id="r_ade70ccbc2ba3db6ba572518f408c7f11"><td class="memItemLeft" align="right" valign="top">using&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ade70ccbc2ba3db6ba572518f408c7f11">iterator_category</a></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -125,7 +128,39 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>operator--</b> ()</td
 <tr class="memitem:af72242ce02d5ad024718b4e0fe50dccd" id="r_af72242ce02d5ad024718b4e0fe50dccd"><td class="memItemLeft" align="right" valign="top"><a id="af72242ce02d5ad024718b4e0fe50dccd" name="af72242ce02d5ad024718b4e0fe50dccd"></a>
 <a class="el" href="#a9e9d101149821d94f593366cb77d51d7">reference</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operator*</b> ()</td></tr>
 </table>
-<a name="doc-typedef-members" id="doc-typedef-members"></a><h2 id="header-doc-typedef-members" class="groupheader">Member Typedef Documentation</h2>
+<a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
+<div class="textblock"><div class="compoundTemplParams">template&lt;typename T&gt;<br />
+class zip_iterator&lt; T &gt;</div><p>An iterator that merges multiple other iterators. </p>
+</div><a name="doc-typedef-members" id="doc-typedef-members"></a><h2 id="header-doc-typedef-members" class="groupheader">Member Typedef Documentation</h2>
+<a id="ade70ccbc2ba3db6ba572518f408c7f11" name="ade70ccbc2ba3db6ba572518f408c7f11"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ade70ccbc2ba3db6ba572518f408c7f11">&#9670;&#160;</a></span>iterator_category</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="classzip__iterator.html">zip_iterator</a>&lt; T &gt;::iterator_category</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line"> <span class="keyword">decltype</span>(</div>
+<div class="line">    +min_by(</div>
+<div class="line">      hana::transform(</div>
+<div class="line">        <a class="code hl_struct" href="structto__hana__tuple__t.html">to_hana_tuple_t&lt;T&gt;::value</a>,</div>
+<div class="line">        [](<span class="keyword">auto</span> el) { <span class="keywordflow">return</span> hana::type_c&lt;iterator_category_t&lt;<span class="keyword">typename</span> <span class="keyword">decltype</span>(+el)::type&gt;&gt;; }</div>
+<div class="line">      ),</div>
+<div class="line">      [](<span class="keyword">auto</span> el) {</div>
+<div class="line">        <span class="keywordflow">return</span> _iterator_category_tag_index(el);</div>
+<div class="line">      },</div>
+<div class="line">      hana::type_c&lt;std::random_access_iterator_tag&gt;</div>
+<div class="line">    )</div>
+<div class="line">  )::type</div>
+<div class="ttc" id="astructto__hana__tuple__t_html"><div class="ttname"><a href="structto__hana__tuple__t.html">to_hana_tuple_t</a></div><div class="ttdef"><b>Definition</b> zip_iterator.hpp:27</div></div>
+</div><!-- fragment -->
+</div>
+</div>
 <a id="a9e9d101149821d94f593366cb77d51d7" name="a9e9d101149821d94f593366cb77d51d7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9e9d101149821d94f593366cb77d51d7">&#9670;&#160;</a></span>reference</h2>
 
@@ -141,6 +176,34 @@ template&lt;typename T&gt; </div>
 </div><div class="memdoc">
 <p>Because we always return a freshly constructed tuple (an rvalue), we cannot return a reference to something that has no definitive memory location. Therefore, a reference is always equal to a plain old value. </p>
 
+</div>
+</div>
+<a id="ac18e42ca0ba0e727d94ad3e5255e9a85" name="ac18e42ca0ba0e727d94ad3e5255e9a85"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac18e42ca0ba0e727d94ad3e5255e9a85">&#9670;&#160;</a></span>value_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="classzip__iterator.html">zip_iterator</a>&lt; T &gt;::value_type</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line"> <span class="keyword">decltype</span>(</div>
+<div class="line">    +hana::unpack(</div>
+<div class="line">      hana::transform(</div>
+<div class="line">        <a class="code hl_struct" href="structto__hana__tuple__t.html">to_hana_tuple_t&lt;T&gt;::value</a>,</div>
+<div class="line">        [](<span class="keyword">auto</span> t) {</div>
+<div class="line">          <span class="keyword">using </span>It = <span class="keyword">typename</span> <span class="keyword">decltype</span>(t)::type;</div>
+<div class="line">          <span class="keywordflow">return</span> hana::type_c&lt;std::iter_value_t&lt;It&gt;&gt;;</div>
+<div class="line">        }</div>
+<div class="line">      ),</div>
+<div class="line">      hana::template_&lt;std::tuple&gt;</div>
+<div class="line">    )</div>
+<div class="line">  )::type</div>
+</div><!-- fragment -->
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>

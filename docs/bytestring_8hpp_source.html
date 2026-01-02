@@ -93,7 +93,7 @@ $(function() {
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;zen/config.hpp&quot;</span></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;zen/algorithm.hpp&quot;</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;zen/zip_iterator.hpp&quot;</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;<a class="code" href="zip__iterator_8hpp.html">zen/zip_iterator.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;<a class="code" href="iterator__range_8hpp.html">zen/iterator_range.hpp</a>&quot;</span></div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>ZEN_NAMESPACE_START</div>
@@ -206,7 +206,7 @@ $(function() {
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="keyword">public</span>:</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  <span class="keyword">using </span>pointer = <span class="keywordtype">char</span>*;</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  <span class="keyword">using </span><a class="code hl_concept" href="conceptpointer.html">pointer</a> = <span class="keywordtype">char</span>*;</div>
 <div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>  <span class="keyword">using </span>reference = <span class="keywordtype">char</span>&amp;;</div>
 <div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>  <span class="keyword">using </span>value_type = char;</div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>  <span class="keyword">using </span>iterator = <span class="keywordtype">char</span>*;</div>
@@ -368,8 +368,10 @@ $(function() {
 <div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span><span class="preprocessor">#endif </span><span class="comment">// #infdef ZEN_BYTESTRING_HPP</span></div>
 <div class="ttc" id="aclassbasic__bytestring_html"><div class="ttname"><a href="classbasic__bytestring.html">basic_bytestring</a></div><div class="ttdef"><b>Definition</b> bytestring.hpp:113</div></div>
 <div class="ttc" id="aclassbytestring__view_html"><div class="ttname"><a href="classbytestring__view.html">bytestring_view</a></div><div class="ttdef"><b>Definition</b> bytestring.hpp:37</div></div>
+<div class="ttc" id="aconceptpointer_html"><div class="ttname"><a href="conceptpointer.html">pointer</a></div><div class="ttdef"><b>Definition</b> concepts.hpp:45</div></div>
 <div class="ttc" id="aiterator__range_8hpp_html"><div class="ttname"><a href="iterator__range_8hpp.html">iterator_range.hpp</a></div><div class="ttdoc">Support for creating ranges over iterators.</div></div>
-<div class="ttc" id="aiterator__range_8hpp_html_a9caaa3d877c404c2034f769ac8f83526"><div class="ttname"><a href="iterator__range_8hpp.html#a9caaa3d877c404c2034f769ac8f83526">zip</a></div><div class="ttdeci">auto zip(Ts &amp;&amp;...args)</div><div class="ttdef"><b>Definition</b> iterator_range.hpp:145</div></div>
+<div class="ttc" id="aiterator__range_8hpp_html_a9caaa3d877c404c2034f769ac8f83526"><div class="ttname"><a href="iterator__range_8hpp.html#a9caaa3d877c404c2034f769ac8f83526">zip</a></div><div class="ttdeci">auto zip(Ts &amp;&amp;...args)</div><div class="ttdef"><b>Definition</b> iterator_range.hpp:136</div></div>
+<div class="ttc" id="azip__iterator_8hpp_html"><div class="ttname"><a href="zip__iterator_8hpp.html">zip_iterator.hpp</a></div><div class="ttdoc">Definitions for an iterator that merges several other iteerators.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
