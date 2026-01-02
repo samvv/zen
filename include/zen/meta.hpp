@@ -13,6 +13,20 @@ ZEN_NAMESPACE_START
 
 namespace meta {
 
+  /// Make an template compatible with binders.
+  ///
+  /// @see _1
+  /// @see _2
+  /// @see _3
+  /// @see _4
+  /// @see _5
+  /// @see _6
+  /// @see _7
+  /// @see _8
+  /// @see _9
+  // template<template<class... Params> class F, class... Args>
+  // struct lift : F<Args...> {};
+
   struct _ {};
   struct _1 {};
   struct _2 {};
@@ -37,6 +51,16 @@ namespace meta {
   using u7 = std::integral_constant<unsigned, 7>;
   using u8 = std::integral_constant<unsigned, 8>;
   using u9 = std::integral_constant<unsigned, 9>;
+
+  template<bool Value>
+  using bool_ = std::bool_constant<Value>;
+  using false_ = bool_<false>;
+  using true_ = bool_<true>;
+
+  template<typename T>
+  struct thunk {
+    using type = T;
+  };
 
   template<typename T1, typename T2>
   struct less;
@@ -103,6 +127,21 @@ namespace meta {
   template<typename T>
   using is_null_v = is_null<T>::value;
 
+  template<bool, typename Then, typename Else>
+  struct if_;
+
+  template<typename Then, typename Else>
+  struct if_<true, Then, Else> : Then {};
+
+  template<typename Then, typename Else>
+  struct if_<false, Then, Else> : Else {};
+
+  // template<bool Test, typename Then, typename Else>
+  // using if_ = std::conditional<Test, Then, Else>;
+
+  template<bool Test, typename Then, typename Else>
+  using if_t = if_<Test, Then, Else>::type;
+
   template<typename FnT, typename ...Ts>
   struct apply {
     using type = FnT::template apply<Ts...>;
@@ -124,8 +163,9 @@ namespace meta {
 
   template<typename KeyT, typename T1, typename ...Ts>
   struct assoc_helper {
-    using type = std::conditional_t<
-      std::is_same_v<typename T1::first_type, KeyT>,
+    // FIXME should probably inherit
+    using type = if_t<
+      std::is_same<typename T1::first_type, KeyT>::value,
       typename T1::second_type,
       typename assoc_helper<KeyT, Ts...>::type
     >;
@@ -144,8 +184,10 @@ namespace meta {
     using type = T;
   };
 
-  template<typename Env, typename T>
-  using eval_t = typename eval<Env, T>::type;
+  // template<typename Env, template <typename...> class F, typename ...ArgTs>
+  // struct eval<Env, lift<F, ArgTs...>> {
+  //   using type = F<typename eval<Env, ArgTs>::type...>;
+  // };
 
   template<typename Env>
   struct eval<Env, _1> {
@@ -192,20 +234,29 @@ namespace meta {
     using type = std::tuple_element_t<8, Env>;
   };
 
-  template<typename Env, template <typename ...> class F, typename ...Ts>
-  struct eval<Env, F<Ts...>> {
-    using type = typename F<eval_t<Env, Ts>...>::type;
-  };
+  template<typename Env, typename T>
+  using eval_t = typename eval<Env, T>::type;
 
   template<typename T>
-  struct lift {
-    template<typename ...Ts>
-    using apply = eval_t<std::tuple<Ts...>, T>;
+  using eval0 = eval_t<std::tuple<>, T>;
+
+  // template<typename Env, template <typename ...> class F, typename ...Ts>
+  // struct eval<Env, F<Ts...>> {
+  //   using type = typename F<eval_t<Env, Ts>...>::type;
+  // };
+
+  template<typename T>
+  struct bind {
+    template<typename ...ArgTs>
+    using apply = eval_t<std::tuple<ArgTs...>, T>;
   };
 
   template<typename T, typename = void>
-  struct get_element {
-    using type = typename std::remove_reference_t<T>::value_type;
+  struct get_element;
+
+  template<std::input_iterator IterT>
+  struct get_element<IterT> {
+    using type = typename std::remove_reference_t<IterT>::value_type;
   };
 
   template<typename T>
@@ -226,40 +277,21 @@ namespace meta {
   template<typename T>
   using get_element_t = typename get_element<T>::type;
 
-  template<typename T>
-  struct get_element_reference {
-    using type = typename T::reference_type;
-  };
-
-  template<typename T>
-  using get_element_reference_t = typename get_element_reference<T>::type;
-
   /// Calculate the type that is used to represent the difference between two
   /// instances of the given type.
   template<typename T>
   struct difference {
+    // TODO should require iterator concept
     using type = typename std::remove_reference_t<T>::difference_type;
   };
-
-  template<typename T>
-  using difference_t = typename difference<T>::type;
 
   template<typename T>
   struct difference<T*> {
     using type = std::ptrdiff_t;
   };
 
-  template <typename T, typename = void>
-  struct is_std_container : std::false_type { };
-
-  template <typename T>
-  struct is_std_container<T,
-      std::void_t<
-        decltype(std::declval<T&>().begin()),
-        decltype(std::declval<T&>().end()),
-        typename T::value_type
-      >
-    > : std::true_type { };
+  template<typename T>
+  using difference_t = typename difference<T>::type;
 
   template<std::size_t N, typename FnT, typename ...Ts>
   struct andmap_impl;
@@ -271,7 +303,7 @@ namespace meta {
 
   template<std::size_t N, typename FnT, typename T, typename ...Ts>
   struct andmap_impl<N, FnT, T, Ts...> {
-    static constexpr const bool value = FnT::template apply<T>::value && andmap_impl<N-1, FnT, Ts...>::value;
+    static constexpr const bool value = apply_t<FnT, T>::value && andmap_impl<N-1, FnT, Ts...>::value;
   };
 
   template<typename FnT, typename T>
@@ -285,10 +317,24 @@ namespace meta {
   template<typename FnT, typename T>
   constexpr const bool andmap_v = andmap<FnT, T>::value;
 
-  static_assert(is_null<std::tuple<>>::value);
+  /// Reduce a sequence of elements to a specific value using a function.
+  ///
+  /// The function (also known as an accumulator) must accept exactly two
+  /// parameters. The first parameter will receive the current element, which
+  /// the second parameter will hold the resulting value as it has been reduced
+  /// thus far.
+  ///
+  /// @param FnT The accumulator
+  /// @param T The sequence of elements
+  /// @param InitT The initial value that the accumulator must receive
+  template <typename FnT, typename T, typename InitT>
+  struct fold;
 
-  template<typename FnT, typename T, typename InitT>
-  struct fold : std::conditional_t<is_null<T>::value, InitT, apply_t<FnT, head_t<T>, fold<FnT, rest_t<T>, InitT>>> {};
+  template<typename FnT, typename InitT>
+  struct fold<FnT, std::tuple<>, InitT> : InitT {};
+
+  template<typename FnT, typename InitT, typename T1, typename ...Ts>
+  struct fold<FnT, std::tuple<T1, Ts...>, InitT> : apply_t<FnT, T1, typename fold<FnT, std::tuple<Ts...>, InitT>::type> {};
 
   template<typename FnT, typename T, typename InitT>
   using fold_t = typename fold<FnT, T, InitT>::type;
@@ -310,19 +356,92 @@ namespace meta {
   template<typename I1, typename I2>
   using add_t = add<I1, I2>::type;
 
+  template<typename I1, typename I2>
+  struct sub;
+
+  template<typename I, I K, I L>
+  struct sub<std::integral_constant<I, K>, std::integral_constant<I, L>> {
+    using type = std::integral_constant<I, K-L>;
+  };
+
+  template<typename I1, typename I2>
+  using sub_t = sub<I1, I2>::type;
+
   template<typename FnT, typename ListT, typename InitT>
-  struct min_by : fold<lift<std::conditional_t<apply_t<FnT, _1>::type::value < apply_t<FnT, _2>::value, _1, _2>>, ListT, InitT> {};
+  struct min_by : fold<
+    bind<
+      if_t<
+        apply_t<FnT, _1>::value < apply_t<FnT, _2>::value,
+        _1,
+        _2
+      >
+    >,
+    ListT,
+    InitT
+  > {};
 
   template<typename FnT, typename ListT, typename InitT>
   using min_by_t = typename min_by<FnT, ListT, InitT>::type;
 
-  template<typename ListT, typename NeedleT, std::size_t I = 0>
-  struct index {
-    using type = std::conditional_t<std::is_same<NeedleT, head_t<ListT>>::value, sz<I>, index<rest_t<ListT>, NeedleT, I + 1>>;
+  template<typename Seq, std::size_t I>
+  struct iter {};
+
+  template<typename T>
+  struct begin;
+
+  template<typename ...Ts>
+  struct begin<std::tuple<Ts...>> {
+    using type = iter<std::tuple<Ts...>, 0>;
   };
 
-  template<typename ListT, typename NeedleT, std::size_t I = 0>
-  using index_t = typename index<ListT, NeedleT, I>::type;
+  template<typename T>
+  using begin_t = typename begin<T>::type;
+
+  template<typename IterT>
+  struct next;
+
+  template<std::size_t I, typename ...Ts>
+  struct next<iter<std::tuple<Ts...>, I>> {
+    using type = iter<std::tuple<Ts...>, I+1>;
+  };
+
+  template<typename IterT>
+  using next_t = typename next<IterT>::type;
+
+  template<typename IterT>
+  struct deref;
+
+  template<std::size_t I, typename ...Ts>
+  struct deref<iter<std::tuple<Ts...>, I>> {
+    using type = std::tuple_element_t<I, std::tuple<Ts...>>;
+  };
+
+  template<typename IterT>
+  using deref_t = typename deref<IterT>::type;
+
+  /// Return the 0-based index of an element in the sequence.
+  ///
+  /// This function will error if the requested element could not be found.
+  ///
+  /// @param ListT The sequence of elements to search
+  /// @param NeedleT The element to search for
+  /// @param I An optional index from which to start the search
+  template<typename StartT, typename NeedleT, std::size_t I = 0>
+  struct index : if_<std::is_same<NeedleT, deref_t<StartT>>::value, sz<I>, typename index<next_t<StartT>, NeedleT, I+1>::type> {};
+
+  // template<typename NeedleT, std::size_t I>
+  // struct index<std::tuple<>, NeedleT, I> {
+  //   static_assert(false && "element not found in std::tuple");
+  // };
+
+  // template<typename NeedleT, std::size_t I, typename T, typename ...Ts>
+  // struct index<std::tuple<T, Ts...>, NeedleT, I> requires (std::is_same<NeedleT, T>::value) : sz<I> {};
+
+  // template<typename NeedleT, std::size_t I, typename T, typename ...Ts>
+  // struct index<std::tuple<T, Ts...>, NeedleT, I, std::enable_if_t<!std::is_same<NeedleT, T>::value>> : index<std::tuple<Ts...>, NeedleT, I + 1> {};
+
+  template<typename StartT, typename NeedleT, std::size_t I = 0>
+  using index_t = typename index<StartT, NeedleT, I>::type;
 
   template<typename T>
   struct is_pointer : std::false_type {};
@@ -360,35 +479,40 @@ namespace meta {
   template<typename T>
   using pointer_element_t = typename pointer_element<T>::type;
 
-  template <typename T, typename = void>
-  struct is_iterator : std::false_type { };
-
-  template <typename T>
-  struct is_iterator<T,
-      std::void_t< typename std::iterator_traits<T>::value_type >
-    > : std::true_type { };
-
-  template<typename T>
-  static constexpr const bool is_iterator_v = is_iterator<T>::value;
-
-  template<typename T, typename = void>
-  struct is_container : std::false_type {};
-
-  template<typename T>
-  struct is_container<T,
-      std::void_t<
-        decltype(std::declval<T&>().begin()),
-        decltype(std::declval<T&>().end()),
-        typename T::value_type,
-        typename T::iterator
-        >
-      > : std::true_type { };
-
-  template<typename T>
-  static constexpr const bool is_container_v = is_container<T>::value;
-
   template<typename T, typename U>
   auto static_pointer_cast(U& ptr);
+
+  // TODO In a later stage these could be autogenerated
+
+  template<typename Env, typename T1, typename T2>
+  struct eval<Env, less<T1, T2>> : less<eval_t<Env, T1>, eval_t<Env, T2>> {};
+
+  template<typename Env, typename T1, typename T2>
+  struct eval<Env, add<T1, T2>> : add<eval_t<Env, T1>, eval_t<Env, T2>> {};
+
+  template<typename Env, typename T>
+  struct eval<Env, head<T>> : head<eval_t<Env, T>> {};
+
+  template<typename Env, typename T>
+  struct eval<Env, rest<T>> : rest<eval_t<Env, T>> {};
+
+  template<typename Env, typename T1, typename T2>
+  struct eval<Env, sub<T1, T2>> : sub<eval_t<Env, T1>, eval_t<Env, T2>> {};
+
+  template<typename Env, bool T1, typename T2, typename T3>
+  struct eval<Env, if_<T1, T2, T3>> : if_<T1, eval_t<Env, T2>, eval_t<Env, T3>> {};
+
+  template<typename Env, typename FnT, typename ListT, typename InitT>
+  struct eval<Env, fold<FnT, ListT, InitT>> : fold<eval_t<Env, FnT>, eval_t<Env, ListT>, eval_t<Env, InitT>> {};
+
+  template<typename Env, typename FnT, typename ListT>
+  struct eval<Env, index<FnT, ListT>> : index<eval_t<Env, FnT>, eval_t<Env, ListT>> {};
+
+  template<typename Env, typename FnT, typename ListT, typename InitT>
+  struct eval<Env, min_by<FnT, ListT, InitT>> : min_by<eval_t<Env, FnT>, eval_t<Env, ListT>, eval_t<Env, InitT>> {};
+
+  template<typename Env, typename T1, typename T2>
+  struct eval<Env, std::is_same<T1, T2>> : std::is_same<eval_t<Env, T1>, eval_t<Env, T2>> {};
 
 }
 
