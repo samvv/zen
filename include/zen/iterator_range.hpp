@@ -165,6 +165,14 @@ auto zip(Ts&& ...args) {
   );
 }
 
+template<typename Iter, typename Fn>
+auto map(iterator_range<Iter>&& range, Fn fn) {
+  return make_iterator_range(
+    map(range.begin(), fn),
+    map(range.end(), fn)
+  );
+}
+
 ZEN_NAMESPACE_END
 
 #endif // of #ifndef ZEN_ITERATOR_RANGE_HPP
