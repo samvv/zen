@@ -18,20 +18,18 @@ class mapped_iterator {
 
 public:
 
-  using iterator_category = traits::iterator_category;
+  // TODO mirror traits::iterator_category but without output_iterator
+  using iterator_category = std::input_iterator_tag;
 
-  using value_type = typename std::invoke_result<F, typename IterT::value_type>::type;
+  using value_type = typename std::invoke_result<F, typename traits::value_type>::type;
 
-  /**
-   * Generally speaking, it does not make sense to reference a return type
-   * that should be owned, so that is why a reference will always be a plain
-   * value_type.
-   */
+  /// It does not make sense to reference a return type that should be owned, so
+  /// that is why a reference will always be a plain value_type.
   using reference = value_type;
 
   using difference_type = traits::difference_type;
 
-  using pointer = traits::pointer;
+  using pointer = void;
 
   mapped_iterator(IterT iterator, F func):
     iterator(iterator), func(func) {}
@@ -64,24 +62,24 @@ public:
     return mapped_iterator { iterator--, func };
   }
 
-  IterT& operator+(std::ptrdiff_t offset) requires(std::random_access_iterator<IterT>) {
+  IterT& operator+(difference_type offset) requires(std::random_access_iterator<IterT>) {
     iterator += offset;
     return *this;
   }
 
-  IterT& operator-(std::ptrdiff_t offset) requires(std::random_access_iterator<IterT>) {
+  IterT& operator-(difference_type offset) requires(std::random_access_iterator<IterT>) {
     iterator -= offset;
     return *this;
   }
 
-  reference operator*() requires(std::indirectly_readable<IterT>) {
+  reference operator*() const requires(std::indirectly_readable<IterT>) {
     return func(*iterator);
   }
 
-  IterT& operator=(value_type&& value) requires(std::indirectly_writable<IterT, value_type>) {
-    iterator = value;
-    return *this;
-  }
+  // IterT& operator=(value_type&& value) requires(std::indirectly_writable<IterT, value_type>) {
+  //   iterator = value;
+  //   return *this;
+  // }
 
 };
 

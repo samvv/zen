@@ -161,6 +161,19 @@ public:
 
 };
 
+/// Determines whether an rvalue will be accepted as argument to zip.
+///
+// By default, we don't allow rvalues.
+//
+// For example, a container passed to `zip` would be destroyed before the
+// iterator can run.
+template <typename T>
+struct _zip_accept_rvalue : std::false_type {};
+
+/// Plain iterators should be accepted as rvalues.
+template <std::input_iterator T>
+struct _zip_accept_rvalue<T> : std::true_type {};
+
 template<std::input_iterator...Ts>
 auto zip(Ts...args) {
   return zip_iterator<std::tuple<Ts...>>(std::tuple<Ts...>(std::forward<Ts>(args)...));

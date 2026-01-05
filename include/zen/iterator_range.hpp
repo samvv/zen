@@ -4,15 +4,12 @@
 #define ZEN_ITERATOR_RANGE_HPP
 
 #include <boost/hana/fwd/tuple.hpp>
-#include <istream>
 #include <iterator>
-#include <tuple>
 #include <type_traits>
 #include <utility>
 
 #include "zen/config.hpp"
 #include "zen/concepts.hpp"
-#include "zen/compat.hpp"
 #include "zen/mapped_iterator.hpp"
 #include "zen/zip_iterator.hpp"
 
@@ -117,13 +114,6 @@ auto make_iterator_range(T& container) {
     std::end(container)
   );
 }
-
-// By default, we don't allow rvalues.
-//
-// For example, a container passed to `zip` would be destroyed before the
-// iterator can run.
-template <typename T>
-struct _zip_accept_rvalue : std::false_type {};
 
 // An iterator_range should be passed by value.
 template<typename IterT>
