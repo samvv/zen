@@ -59,7 +59,7 @@ public:
   template<pointer T>
   void transform(T& value);
 
-  template<container T>
+  template<range T>
   void transform(T& value);
 
   template<can_transform T>
@@ -180,7 +180,7 @@ void transformer::transform(std::pair<T1, T2>& value) {
   end_transform_sequence();
 }
 
-template<container T>
+template<range T>
 void transformer::transform(T& value) {
   start_transform_sequence();
   transform_size(value.size());
@@ -206,14 +206,6 @@ void transformer::transform(T& value) {
 template<can_transform T>
 void transformer::transform(T& value) {
   value.transform(*this);
-}
-
-template<typename T>
-void decode(transformer& decoder, T& value) {
-  // FIXME The object tag is set to the empty string
-  auto s = decoder.transform_object("");
-  value.transform_fields(s);
-  s.finalize();
 }
 
 ZEN_NAMESPACE_END

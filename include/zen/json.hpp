@@ -42,39 +42,39 @@ struct json_encode_opts {
   std::string indentation = "";
 };
 
-std::unique_ptr<transformer> make_json_decoder(
-  std::istream& input,
-  json_encode_opts opts = {}
-);
-
 struct json_decode_opts {
 
 };
 
+std::unique_ptr<transformer> make_json_decoder(
+  std::istream& input,
+  json_decode_opts opts = {}
+);
+
 std::unique_ptr<transformer> make_json_encoder(
   std::ostream& output,
-  json_decode_opts opts = {}
+  json_encode_opts opts = {}
 );
 
 template<typename InputT, typename T>
 void decode_json(InputT input, T& value) {
   auto decoder = make_json_decoder(input);
-  decode(decoder, value);
+  decoder->transform(value);
 }
 
-template<typename OutputT, typename T>
-void encode_json(OutputT output, T& value) {
+template<typename T>
+void encode_json(std::ostream& output, const T& value) {
   auto encoder = make_json_encoder(output);
-  decode(encoder, value);
+  encoder->transform(value);
 }
 
-template<typename OutputT, typename T>
-void encode_json_pretty(OutputT output, T& value) {
+template<typename T>
+void encode_json_pretty(std::ostream& output, const T& value) {
   json_encode_opts opts = {
     .indentation = "    ",
   };
   auto encoder = make_json_encoder(output, opts);
-  decode(encoder, value);
+  encoder->transform(value);
 }
 
 ZEN_NAMESPACE_END
