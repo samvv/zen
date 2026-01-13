@@ -39,6 +39,9 @@ template<typename T>
 struct is_pointer<T*> : std::true_type {};
 
 template<typename T>
+struct is_pointer<T* const> : std::true_type {};
+
+template<typename T>
 struct is_pointer<std::unique_ptr<T>> : std::true_type {};
 
 template<typename T>
