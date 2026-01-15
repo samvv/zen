@@ -184,7 +184,7 @@ template<range T>
 void transformer::transform(T& value) {
   start_transform_sequence();
   transform_size(value.size());
-  for (const auto& element: value) {
+  for (auto& element: value) {
     start_transform_element();
     transform(element);
     end_transform_element();
