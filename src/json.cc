@@ -222,8 +222,10 @@ public:
   }
 
   void start_transform_object(const std::string& tag_name) override {
-    out << "{";
-    levels.push(true);
+    out << "{\n";
+    levels.push(false);
+    write_indentation(levels.size());
+    out << "\"__tag\": \"" << tag_name << "\"";
   }
 
   void end_transform_object() override {
