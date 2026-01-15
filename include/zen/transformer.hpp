@@ -2,6 +2,8 @@
 #define ZEN_TRANSFORMER_HPP
 
 #include <optional>
+#include <tuple>
+#include <utility>
 
 #include "zen/config.hpp"
 #include "zen/concepts.hpp"
@@ -52,6 +54,12 @@ public:
 
   template<typename T>
   void transform(std::optional<T>& value);
+
+  template<typename Tup, std::size_t...S>
+  void transform_tuple_helper(Tup& value, std::index_sequence<S...>);
+
+  template<typename ...Ts>
+  void transform(std::tuple<Ts...>& value);
 
   template<typename T1, typename T2>
   void transform(std::pair<T1, T2>& value);
@@ -166,6 +174,18 @@ void transformer::transform(std::optional<T>& value) {
     transform(*value);
   }
   end_transform_optional();
+}
+
+template<typename Tup, std::size_t...S>
+void transformer::transform_tuple_helper(Tup& value, std::index_sequence<S...>) {
+  ((start_transform_element(), transform(std::get<S>(value)), end_transform_element()), ...);
+}
+
+template<typename ...Ts>
+void transformer::transform(std::tuple<Ts...>& value) {
+  start_transform_sequence();
+  transform_tuple_helper(value, std::make_index_sequence<std::tuple_size_v<std::tuple<Ts...>>> {});
+  end_transform_sequence();
 }
 
 template<typename T1, typename T2>
