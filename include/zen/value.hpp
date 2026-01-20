@@ -1,11 +1,13 @@
 #ifndef ZEN_VALUE_HPP
 #define ZEN_VALUE_HPP
 
+#include <stack>
 #include <vector>
 
 #include "zen/config.hpp"
 #include "zen/string.hpp"
 #include "zen/seq_map.hpp"
+#include "zen/transformer.hpp"
 
 ZEN_NAMESPACE_START
 
@@ -26,7 +28,6 @@ enum class value_type {
 class value;
 
 class null {};
-
 
 class value {
 public:
@@ -309,6 +310,130 @@ public:
 
 using array = value::array;
 using object = value::object;
+
+class value_encoder : public transformer {
+public:
+
+  std::stack<value> building;
+  std::optional<string> field_key = {};
+
+  void transform(bool& x) override {
+    building.top() = value(x);
+  }
+
+  void transform(char& x) override {
+    building.top() = value(bigint(x));
+  }
+
+  void transform(short& x) override {
+    building.top() = value(bigint(x));
+  }
+
+  void transform(int& x) override {
+    building.top() = value(bigint(x));
+  }
+
+  void transform(long& x) override {
+    building.top() = value(bigint(x));
+  }
+
+  void transform(long long& x) override {
+    building.top() = value(bigint(x));
+  }
+
+  void transform(unsigned char& x) override {
+    building.top() = value(bigint(x));
+  }
+
+  void transform(unsigned short& x) override {
+    building.top() = value(bigint(x));
+  }
+
+  void transform(unsigned int& x) override {
+    building.top() = value(bigint(x));
+  }
+
+  void transform(unsigned long& x) override {
+    building.top() = value(bigint(x));
+  }
+
+  void transform(unsigned long long& x) override {
+    building.top() = value(bigint(x));
+  }
+
+  void transform(float& x) override {
+    building.top() = value(x);
+  }
+
+  void transform(double& x) override {
+    building.top() = value(x);
+  }
+
+  void transform(std::string& x) override {
+    building.top() = value(x);
+  }
+
+  void start_transform_optional() override {
+  }
+
+  void transform_nil() override {
+    building.top() = value();
+  }
+
+  void end_transform_optional() override {
+  }
+
+  void start_transform_object(const std::string &tag_name) override {
+    object obj;
+    obj.emplace("__tag", tag_name);
+    building.top() = obj;
+  }
+
+  void start_transform_field(const std::string& name) override{
+    field_key = name;
+  }
+
+  void end_transform_field() override {
+    auto field_value = building.top();
+    building.pop();
+    building.top().as_object().emplace(*field_key, field_value);
+    field_key = {};
+  }
+
+  void end_transform_object() override {
+  }
+
+  void start_transform_sequence() override {
+    building.top() = array();
+  }
+
+  void transform_size(std::size_t sz) override {
+  }
+
+  void start_transform_element() override {
+  }
+
+  void end_transform_element() override {
+    auto element = building.top();
+    building.pop();
+    building.top().as_array().push_back(element);
+  }
+
+  void end_transform_sequence() override {
+  }
+
+  value result() const {
+    return building.top();
+  }
+
+};
+
+template<typename T>
+value encode_value(T obj) {
+  value_encoder enc;
+  enc.transform(obj);
+  return enc.result();
+}
 
 ZEN_NAMESPACE_END
 
