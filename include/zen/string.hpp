@@ -11,7 +11,7 @@
 
 ZEN_NAMESPACE_START
 
-using string = std::basic_string<std::uint32_t>;
+using string = std::string;
 
 ZEN_NAMESPACE_END
 
