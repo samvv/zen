@@ -2,10 +2,7 @@
 #define ZEN_VALUE_HPP
 
 #include <vector>
-#include <memory>
 
-#include "zen/config.hpp"
-#include "zen/clone_ptr.hpp"
 #include "zen/config.hpp"
 #include "zen/string.hpp"
 #include "zen/seq_map.hpp"

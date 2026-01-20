@@ -4,7 +4,6 @@
 #ifndef ZEN_STRING_HPP
 #define ZEN_STRING_HPP
 
-#include <cstdint>
 #include <string>
 
 #include "zen/config.hpp"
