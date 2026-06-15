@@ -1,5 +1,7 @@
 
 #include "zen/po.hpp"
+#include "zen/config.hpp"
+#include "zen/either.hpp"
 
 ZEN_NAMESPACE_START
 
@@ -18,8 +20,13 @@ namespace po {
   using parser_t = std::function<result<std::any>(const std::string&)>;
 
   std::unordered_map<std::type_index, parser_t> parsers {
-    { std::type_index(typeid(std::string)), [](auto x) { return right(x); }  },
-    { std::type_index(typeid(std::string)), [](auto x) { return right(x.empty() || x == "0" ? false : true); }  },
+    {
+      std::type_index(typeid(std::string)),
+      [](auto& x) { return right(x); }  },
+    {
+      std::type_index(typeid(bool)),
+      [](auto& x) { return right(x.empty() || x == "0" ? false : true); }
+    },
   };
 
   using value_list = std::vector<std::string>;
@@ -60,7 +67,7 @@ namespace po {
     std::size_t i = 0; // index into argv
     std::vector<command*> command_stack { &_command };
     std::vector<argmap> mapping_stack { fresh_argmap(_command) };
-    auto pos_arg_iter = command_stack.back()->_pos_args.begin();
+    auto pos_arg_iter = _command._pos_args.begin();
     std::size_t pos_arg_count = 0; // Counts the amount of positional arguments.
 
 #define BOLT_PUSH_CMD(cmd) \
@@ -90,31 +97,30 @@ namespace po {
         std::string name;
         auto l = arg.find('=', k);
         if (l != arg.npos) {
-          name = std::string(arg.substr(k, l));
+          name = std::string(arg.substr(k, l-k));
         } else {
           name = std::string(arg.substr(k));
         }
 
         bool found = false;
-        for (std::size_t i = 0; i < command_stack.size(); ++i) {
-        // for (auto iter = command_stack.rbegin(); iter != command_stack.rend(); ++iter) {
-          // auto& cmd = **iter;
-          auto& cmd = *command_stack[i];
-          auto iter = cmd._flags.find(name);
-          if (iter == cmd._flags.end()) {
+        for (std::size_t j = command_stack.size(); j-- > 0; ) {
+          auto& cmd = *command_stack[j];
+          auto found_arg = cmd._flags.find(name);
+          if (found_arg == cmd._flags.end()) {
             continue;
           }
-          auto& flag = iter->second;
+          auto& flag = found_arg->second;
           found = true;
+          // FIXME
           bool needs_value = !flag.is<bool>();
-          auto& map = mapping_stack[i];
+          auto& map = mapping_stack[j];
           if (!needs_value) {
-            map.emplace(name, true);
+            map.insert_or_assign(name, true);
             break;
           }
           std::string value_str;
           if (l != arg.npos) {
-            value_str = arg.substr(l);
+            value_str = arg.substr(l+1);
           } else {
             if (i == argv.size()) {
               return left(flag_value_missing_error(name));
@@ -125,8 +131,9 @@ namespace po {
           if (parser == parsers.end()) {
             return left(unsupported_type_error(name));
           }
-          auto value = parser->second(value_str);
-          map.emplace(name, value);
+          auto result = parser->second(value_str);
+          ZEN_TRY(result);
+          map.emplace(name, result.right());
           break;
         }
         if (!found) {
