@@ -55,34 +55,59 @@ TEST(POTest, ReportsErrorWhenCommandNotFound) {
   ASSERT_EQ(real_err.actual, "foobar");
 }
 
-TEST(POTest, SetTrueConvertsFlagPresenceToBool) {
+TEST(POTest, SetTrueFlagMissing) {
   auto prog = zen::po::program("test")
-    .arg(zen::po::arg<bool>("bare").flag().action(zen::po::arg_action::set_true));
+    .arg(zen::po::arg<bool>("foobar").flag().action(zen::po::arg_action::set_true));
   auto match = prog
-    .parse_args({ "--bare" })
+    .parse_args({})
     .unwrap();
   ASSERT_EQ(match.count(), 1);
-  ASSERT_TRUE(match.has("bare"));
-  auto bare = match.get<bool>("bare");
-  ASSERT_TRUE(bare.has_value());
-  ASSERT_EQ(*bare, true);
+  ASSERT_TRUE(match.has("foobar"));
+  auto foobar = match.get<bool>("foobar");
+  ASSERT_TRUE(foobar.has_value());
+  ASSERT_EQ(*foobar, false);
 }
 
-TEST(POTest, SetFalseConvertsFlagPresenceToBool) {
+TEST(POTest, SetTrueFlagPresent) {
   auto prog = zen::po::program("test")
-    .arg(zen::po::arg<bool>("bare").flag().action(zen::po::arg_action::set_false));
+    .arg(zen::po::arg<bool>("foobar").flag().action(zen::po::arg_action::set_true));
   auto match = prog
-    .parse_args({ "--bare" })
+    .parse_args({ "--foobar" })
     .unwrap();
   ASSERT_EQ(match.count(), 1);
-  ASSERT_TRUE(match.has("bare"));
-  auto bare = match.get<bool>("bare");
-  ASSERT_TRUE(bare.has_value());
-  ASSERT_EQ(*bare, false);
+  ASSERT_TRUE(match.has("foobar"));
+  auto foobar = match.get<bool>("foobar");
+  ASSERT_TRUE(foobar.has_value());
+  ASSERT_EQ(*foobar, true);
 }
 
+TEST(POTest, SetFalseFlagMissing) {
+  auto prog = zen::po::program("test")
+    .arg(zen::po::arg<bool>("foobar").flag().action(zen::po::arg_action::set_false));
+  auto match = prog
+    .parse_args({ })
+    .unwrap();
+  ASSERT_EQ(match.count(), 1);
+  ASSERT_TRUE(match.has("foobar"));
+  auto foobar = match.get<bool>("foobar");
+  ASSERT_TRUE(foobar.has_value());
+  ASSERT_EQ(*foobar, true);
+}
 
-TEST(POTest, AssignsToRightmostArg) {
+TEST(POTest, SetFalseFlagPresent) {
+  auto prog = zen::po::program("test")
+    .arg(zen::po::arg<bool>("foobar").flag().action(zen::po::arg_action::set_false));
+  auto match = prog
+    .parse_args({ "--foobar" })
+    .unwrap();
+  ASSERT_EQ(match.count(), 1);
+  ASSERT_TRUE(match.has("foobar"));
+  auto foobar = match.get<bool>("foobar");
+  ASSERT_TRUE(foobar.has_value());
+  ASSERT_EQ(*foobar, false);
+}
+
+TEST(POTest, AssignsToRightmostArgOnOverlap) {
   auto prog = zen::po::program("test")
     .arg(zen::po::arg("bla").flag())
     .subcommand(zen::po::command("foo")
@@ -114,6 +139,25 @@ TEST(POTest, CanParseSubcommandsNoPositional) {
   auto [name2, sub2] = sub1.subcommand();
   ASSERT_FALSE(sub2.has_subcommand());
   ASSERT_EQ(sub2.count(), 0);
+}
+
+TEST(POTest, CanParseSubcommandsPositionalMixed) {
+  auto prog = zen::po::program("test")
+    .subcommand(zen::po::command("foo")
+      .arg(zen::po::arg("pos").required())
+      .subcommand(zen::po::command("bar"))
+    );
+  auto match = prog.parse_args({ "foo", "blabla", "bar" }).unwrap();
+  ASSERT_TRUE(match.has_subcommand());
+  auto [name, sub1] = match.subcommand();
+  ASSERT_EQ(name, "foo");
+  ASSERT_EQ(sub1.count(), 1);
+  ASSERT_TRUE(sub1.has("pos"));
+  ASSERT_EQ(*sub1.get<std::string>("pos"), "blabla");
+  ASSERT_TRUE(sub1.has_subcommand());
+  auto [name2, sub2] = sub1.subcommand();
+  ASSERT_EQ(sub2.count(), 0);
+  ASSERT_FALSE(sub2.has_subcommand());
 }
 
 TEST(POTest, FailsOnExcessPositional) {

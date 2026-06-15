@@ -1,7 +1,6 @@
 
 #include "zen/config.hpp"
 #include "zen/either.hpp"
-#include "zen/iterator_range.hpp"
 #include "zen/po.hpp"
 
 ZEN_NAMESPACE_START
@@ -176,7 +175,7 @@ namespace po {
           }
         }
 
-        auto& cmd = *command_stack.back();
+        const auto& cmd = *command_stack.back();
         auto& map = mapping_stack.back();
 
         // Ensure that positional arguments can still be accepted
@@ -210,6 +209,7 @@ namespace po {
                   pos_arg_iter->_name,
               });
             }
+
             map.emplace(pos_arg_iter->_name, *result);
             break;
           default:
@@ -230,15 +230,15 @@ next:;
 
     // Assign defaults and check for missing arguments
     for (std::size_t i = 0; i < command_stack.size(); ++i) {
-      auto cmd = command_stack[i];
+      const auto& cmd = *command_stack[i];
       auto& map = mapping_stack[i];
 
-      for (auto arg: cmd->_args) {
+      for (const auto& arg: cmd._args) {
         switch (*arg._action) {
           case arg_action::set:
             if (arg.is_required() && !map.count(arg._name)) {
               return left(argument_missing_error {
-                  cmd->_name,
+                  cmd._name,
                   arg._name,
               });
             }
@@ -274,7 +274,7 @@ next:;
       std::move(sub)
     };
 
-    if (!command_stack.empty() && command_stack.back()->_callback) {
+    if (command_stack.back()->_callback) {
       std::exit((*command_stack.back()->_callback)(out));
     }
 
