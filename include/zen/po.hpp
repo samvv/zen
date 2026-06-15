@@ -2,19 +2,17 @@
 #pragma once
 
 #include <algorithm>
-#include <variant>
-#include <string>
-#include <optional>
-#include <functional>
-#include <unordered_map>
 #include <any>
-#include <vector>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <string>
 #include <typeindex>
+#include <unordered_map>
+#include <variant>
+#include <vector>
 
 #include "zen/config.hpp"
-#include "zen/clone_ptr.hpp"
-#include "zen/config.hpp"
-#include "zen/iterator_range.hpp"
 #include "zen/either.hpp"
 
 ZEN_NAMESPACE_START
