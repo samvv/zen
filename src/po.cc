@@ -30,7 +30,7 @@ namespace po {
     },
   };
 
-  using value_list = std::vector<std::string>;
+  using value_list = std::vector<std::any>;
 
   argmap program::fresh_argmap(const command& cmd) {
     argmap out;
@@ -45,6 +45,14 @@ namespace po {
       }
     }
     return out;
+  }
+
+  result<std::any> program::parse_value(const std::string_view& text, const _arg_info& arg) {
+    auto parser = parsers.find(arg._type);
+    if (parser == parsers.end()) {
+      return left(unsupported_type_error(arg._name));
+    }
+    return parser->second(std::string(text));
   }
 
   result<match> program::parse_args(std::vector<std::string_view> argv) {
@@ -89,36 +97,52 @@ namespace po {
 
         bool found = false;
         for (std::size_t j = command_stack.size(); j-- > 0; ) {
+
           auto& cmd = *command_stack[j];
-          auto found_arg = cmd._flags.find(name);
-          if (found_arg == cmd._flags.end()) {
+          auto& map = mapping_stack[j];
+
+          auto found_arg_desc = cmd._flags.find(name);
+          if (found_arg_desc == cmd._flags.end()) {
             continue;
           }
-          auto& flag = found_arg->second;
+          auto& flag = found_arg_desc->second;
           found = true;
-          // FIXME
-          bool needs_value = !flag.is<bool>();
-          auto& map = mapping_stack[j];
-          if (!needs_value) {
-            map.emplace(name, true);
-            break;
-          }
-          std::string value_str;
-          if (l != arg.npos) {
-            value_str = arg.substr(l+1);
-          } else {
-            if (i == argv.size()) {
-              return left(flag_value_missing_error(name));
+
+          switch (*flag._action) {
+
+          case arg_action::set_true:
+            map.emplace(flag._name, true);
+            goto next;
+
+          case arg_action::set_false:
+            map.emplace(flag._name, false);
+            goto next;
+
+          default:
+
+            // Get the text that was given to the flag
+            std::string value_str;
+            if (l != arg.npos) {
+              value_str = arg.substr(l+1);
+            } else {
+              if (i == argv.size()) {
+                return left(flag_value_missing_error(name));
+              }
+              value_str = arg[i++];
             }
-            value_str = arg[i++];
+
+            // Parse the text into a value of the type the flag expects
+            auto result = parse_value(value_str, flag);
+            ZEN_TRY(result);
+
+            // Attempt to assign the value to this flag
+            if (map.count(name)) {
+              return left(argument_already_specified_error {
+                  name,
+              });
+            }
+            map.emplace(name, result.right());
           }
-          auto parser = parsers.find(flag._type);
-          if (parser == parsers.end()) {
-            return left(unsupported_type_error(name));
-          }
-          auto result = parser->second(value_str);
-          ZEN_TRY(result);
-          map.emplace(name, result.right());
           break;
         }
         if (!found) {
@@ -152,9 +176,12 @@ namespace po {
           }
         }
 
+        auto& cmd = *command_stack.back();
+        auto& map = mapping_stack.back();
+
         // Ensure that positional arguments can still be accepted
-        if (pos_arg_iter == command_stack.back()->_pos_args.end()) {
-          if (added_fallback || command_stack.back()->_subcommands.empty()) {
+        if (pos_arg_iter == cmd._pos_args.end()) {
+          if (added_fallback || cmd._subcommands.empty()) {
             return left(excess_positional_arg_error(i, std::string(arg)));
           } else {
             return left(command_not_found_error(std::string(arg)));
@@ -162,27 +189,34 @@ namespace po {
         }
 
         // Process as positional argument
-        // TODO support types other than std::string
-        auto value = std::string(arg);
+        auto result = parse_value(arg, *pos_arg_iter);
+        ZEN_TRY(result);
         switch (*pos_arg_iter->_action) {
           case arg_action::append:
             {
-              auto vec= std::any_cast<value_list&>(mapping_stack.back().find(pos_arg_iter->_name)->second);
-              vec.push_back(value);
+              auto vec= std::any_cast<value_list&>(map.find(pos_arg_iter->_name)->second);
+              vec.push_back(*result);
               break;
             }
           case arg_action::prepend:
             {
-              auto vec= std::any_cast<value_list&>(mapping_stack.back().find(pos_arg_iter->_name)->second);
-              vec.insert(vec.begin(), value);
+              auto vec= std::any_cast<value_list&>(map.find(pos_arg_iter->_name)->second);
+              vec.insert(vec.begin(), *result);
               break;
             }
           case arg_action::set:
-            mapping_stack.back().emplace(pos_arg_iter->_name, value);
+            if (map.count(pos_arg_iter->_name)) {
+              return left(argument_already_specified_error {
+                  pos_arg_iter->_name,
+              });
+            }
+            map.emplace(pos_arg_iter->_name, *result);
             break;
           default:
             ZEN_UNREACHABLE
         }
+
+        // Go to the next positional argument descriptor
         ++pos_arg_count;
         if (pos_arg_count == pos_arg_iter->_max_count) {
           ++pos_arg_iter;
@@ -194,6 +228,7 @@ namespace po {
 next:;
     }
 
+    // Assign defaults and check for missing arguments
     for (auto [cmd, map]: zip(command_stack, mapping_stack)) {
       for (auto arg: cmd->_args) {
         switch (*arg._action) {
@@ -217,6 +252,7 @@ next:;
       }
     }
 
+    // Construct the nested structure of the outgoing match object
     std::optional<std::pair<std::string, std::unique_ptr<match>>> sub;
     for (std::size_t k = command_stack.size(); k-- > 1; ) {
       sub = std::make_pair(

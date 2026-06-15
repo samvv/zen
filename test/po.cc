@@ -42,7 +42,7 @@ TEST(PoTest, StoresEmptyVectorWhenNoPosArgs) {
     .parse_args({})
     .unwrap();
   ASSERT_TRUE(match.has("foo"));
-  auto files = *match.get<std::vector<std::string>>("foo");
+  auto files = *match.get<std::vector<std::any>>("foo");
   ASSERT_EQ(files.size(), 0);
 }
 
@@ -55,9 +55,9 @@ TEST(POTest, ReportsErrorWhenCommandNotFound) {
   ASSERT_EQ(real_err.actual, "foobar");
 }
 
-TEST(POTest, ConvertsFlagPresenceToBool) {
+TEST(POTest, SetTrueConvertsFlagPresenceToBool) {
   auto prog = zen::po::program("test")
-    .arg(zen::po::arg<bool>("bare").flag());
+    .arg(zen::po::arg<bool>("bare").flag().action(zen::po::arg_action::set_true));
   auto match = prog
     .parse_args({ "--bare" })
     .unwrap();
@@ -67,6 +67,20 @@ TEST(POTest, ConvertsFlagPresenceToBool) {
   ASSERT_TRUE(bare.has_value());
   ASSERT_EQ(*bare, true);
 }
+
+TEST(POTest, SetFalseConvertsFlagPresenceToBool) {
+  auto prog = zen::po::program("test")
+    .arg(zen::po::arg<bool>("bare").flag().action(zen::po::arg_action::set_false));
+  auto match = prog
+    .parse_args({ "--bare" })
+    .unwrap();
+  ASSERT_EQ(match.count(), 1);
+  ASSERT_TRUE(match.has("bare"));
+  auto bare = match.get<bool>("bare");
+  ASSERT_TRUE(bare.has_value());
+  ASSERT_EQ(*bare, false);
+}
+
 
 TEST(POTest, AssignsToRightmostArg) {
   auto prog = zen::po::program("test")

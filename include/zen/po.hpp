@@ -150,6 +150,16 @@ namespace po {
     };
   }
 
+  struct argument_already_specified_error {
+
+    std::string arg_name;
+
+    void display(std::ostream& out) const {
+      out << "the argument '" << arg_name << "' was already specified.";
+    }
+
+  };
+
   struct argument_missing_error {
 
     std::string command_name;
@@ -248,7 +258,8 @@ namespace po {
       flag_value_missing_error,
       unsupported_type_error,
       unrecognised_flag_error,
-      argument_missing_error
+      argument_missing_error,
+      argument_already_specified_error
     >;
 
     storage_t storage;
@@ -450,6 +461,8 @@ namespace po {
     command _command;
 
     argmap fresh_argmap(const command& cmd);
+
+    result<std::any> parse_value(const std::string_view& text, const _arg_info& arg);
 
   public:
 
