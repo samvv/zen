@@ -229,7 +229,10 @@ next:;
     }
 
     // Assign defaults and check for missing arguments
-    for (auto [cmd, map]: zip(command_stack, mapping_stack)) {
+    for (std::size_t i = 0; i < command_stack.size(); ++i) {
+      auto cmd = command_stack[i];
+      auto& map = mapping_stack[i];
+
       for (auto arg: cmd->_args) {
         switch (*arg._action) {
           case arg_action::set:
