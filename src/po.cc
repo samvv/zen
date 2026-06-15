@@ -1,8 +1,6 @@
 
 #include "zen/po.hpp"
 
-#include <iostream> // For debugging only
-
 ZEN_NAMESPACE_START
 
 namespace po {
@@ -26,11 +24,10 @@ namespace po {
 
   result<match> program::parse_args(std::vector<std::string_view> argv) {
 
-    std::size_t i = 0;
+    std::size_t i = 0; // index into argv
     std::vector<command*> command_stack { &_command };
+    std::vector<argmap> mapping_stack { argmap {} };
     auto pos_arg_iter = command_stack.back()->_pos_args.begin();
-    auto res = new match;
-    auto root_res = res;
     std::size_t pos_arg_count = 0; // Counts the amount of positional arguments.
 
 #define BOLT_PUSH_CMD(cmd) \
@@ -39,11 +36,7 @@ namespace po {
   } \
   command_stack.push_back(&cmd); \
   pos_arg_iter = cmd._pos_args.begin(); \
-  { \
-    auto next_res = new match; \
-    res->_subcommand = std::make_tuple(cmd._name, next_res); \
-    res = next_res; \
-  }
+  mapping_stack.push_back(argmap {});
 
     for (; i < argv.size(); ) {
 
@@ -68,17 +61,20 @@ namespace po {
         }
 
         bool found = false;
-        for (auto iter = command_stack.rbegin(); iter != command_stack.rend(); ++iter) {
-          auto& cmd = **iter;
-          auto match = cmd._flags.find(name);
-          if (match == cmd._flags.end()) {
+        for (std::size_t i = 0; i < command_stack.size(); ++i) {
+        // for (auto iter = command_stack.rbegin(); iter != command_stack.rend(); ++iter) {
+          // auto& cmd = **iter;
+          auto& cmd = *command_stack[i];
+          auto iter = cmd._flags.find(name);
+          if (iter == cmd._flags.end()) {
             continue;
           }
-          auto& flag = match->second;
+          auto& flag = iter->second;
           found = true;
           bool needs_value = flag.type != typeid(bool);
+          auto& map = mapping_stack[i];
           if (!needs_value) {
-            res->add_flag(name, true);
+            map.emplace(name, true);
             break;
           }
           std::string value_str;
@@ -90,12 +86,12 @@ namespace po {
             }
             value_str = arg[i++];
           }
-          auto parser_match = parsers.find(flag.type);
-          if (parser_match == parsers.end()) {
+          auto parser = parsers.find(flag.type);
+          if (parser == parsers.end()) {
             return left(unsupported_type_error(name));
           }
-          auto value = parser_match->second(value_str);
-          res->add_flag(name, value);
+          auto value = parser->second(value_str);
+          map.emplace(name, value);
           break;
         }
         if (!found) {
@@ -129,7 +125,7 @@ namespace po {
           }
         }
 
-        // Process any positional arguments
+        // Ensure that positional arguments can still be accepted
         if (pos_arg_iter == command_stack.back()->_pos_args.end()) {
           if (added_fallback || command_stack.back()->_subcommands.empty()) {
             return left(excess_positional_arg_error(i, std::string(arg)));
@@ -137,7 +133,10 @@ namespace po {
             return left(command_not_found_error(std::string(arg)));
           }
         }
-        res->add_pos_arg(std::string(arg));
+
+        // Process any positional arguments
+        // TODO need to support n-ary arguments
+        mapping_stack.back().emplace(pos_arg_iter->_name, std::string(arg));
         ++pos_arg_count;
         if (pos_arg_count == pos_arg_iter->_arity) {
           ++pos_arg_iter;
@@ -149,11 +148,29 @@ namespace po {
 next:;
     }
 
-    if (!command_stack.empty() && command_stack.back()->_callback) {
-      std::exit((*command_stack.back()->_callback)(*root_res));
+    std::optional<std::pair<std::string, std::unique_ptr<match>>> sub;
+    for (std::size_t k = command_stack.size(); k-- > 1; ) {
+      sub = std::make_pair(
+        command_stack[k]->_name,
+        std::make_unique<match>(
+          *command_stack[k],
+          mapping_stack[k],
+          std::move(sub)
+        )
+      );
     }
 
-    return right(*root_res);
+    match out = match {
+      *command_stack[0],
+      mapping_stack[0],
+      std::move(sub)
+    };
+
+    if (!command_stack.empty() && command_stack.back()->_callback) {
+      std::exit((*command_stack.back()->_callback)(out));
+    }
+
+    return right(out);
   }
 
 }

@@ -9,7 +9,6 @@
 #include <unordered_map>
 #include <any>
 #include <vector>
-#include <memory>
 #include <typeindex>
 
 #include "zen/config.hpp"
@@ -198,73 +197,63 @@ namespace po {
   template<typename T>
   using result = either<error, T>;
 
-  class match {
+  class command;
+
+  /**
+   * @internal
+   */
+  using argmap = std::unordered_map<std::string, std::any>;
+
+  struct match {
 
     friend class program;
 
-    std::unordered_map<std::string, std::any> _flags;
-    std::vector<std::string> _pos_args;
-    std::optional<std::tuple<std::string, clone_ptr<match>>> _subcommand = {};
+    /**
+     * @internal
+     */
+    command& cmd;
 
-    void add_flag(std::string name, std::any value) {
-      _flags.emplace(name, value);
+    /**
+     * @internal
+     */
+    argmap values;
+
+    /**
+     * @internal
+     */
+    std::optional<std::pair<std::string, std::unique_ptr<match>>> submatch;
+
+    /// Count how many different arguments are registered in this command.
+    ///
+    /// Repeated arguments are counted as one argument.
+    ///
+    /// This only counts arguemnts in the current command and NOT in any subcommands.
+    ///
+    bool count() const {
+      return values.size();
     }
 
-    void add_pos_arg(std::string arg) {
-      _pos_args.push_back(arg);
-    }
-
-  public:
-
-    inline match():
-      _subcommand({}) {}
-
-    inline match(
-      std::unordered_map<std::string, std::any> _flags,
-      std::vector<std::string> _pos_args,
-      std::optional<std::tuple<std::string, clone_ptr<match>>> _subcommand
-    ): _flags(_flags), _pos_args(_pos_args), _subcommand(_subcommand) {}
-
-    match* clone() const {
-      return new match { _flags, _pos_args, _subcommand };
-    }
-
-    std::size_t count_flags() const {
-      return _flags.size();
-    }
-
-    bool has_flag(const std::string& name) const {
-      return _flags.count(name);
+    /// Determine is the given argument received a value during invocation.
+    bool has(const std::string& name) const {
+      return values.count(name);
     }
 
     template<typename T>
-    std::optional<T> get_flag(const std::string& name) const {
-      auto match = _flags.find(name);
-      if  (match == _flags.end()) {
+    std::optional<T> get(const std::string& name) const {
+      auto match = values.find(name);
+      if  (match == values.end()) {
         return {};
       }
       return std::any_cast<T>(match->second);
     }
 
-    std::size_t count_pos_args() const {
-      return _pos_args.size();
-    }
-
-    std::string get_pos_arg(std::size_t i) {
-      return _pos_args[i];
-    }
-
-    auto get_pos_args() const {
-      return make_iterator_range(_pos_args.cbegin(), _pos_args.cend());
-    }
-
     bool has_subcommand() const noexcept {
-      return _subcommand.has_value();
+      return submatch.has_value();
     }
 
-    std::tuple<std::string, clone_ptr<match>>& subcommand() {
-      ZEN_ASSERT(_subcommand);
-      return *_subcommand;
+    std::pair<std::string, match&> subcommand() {
+      ZEN_ASSERT(submatch);
+      return { submatch->first, *submatch->second };
     }
 
   };
