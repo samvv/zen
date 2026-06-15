@@ -179,11 +179,24 @@ namespace po {
         // Process as positional argument
         // TODO support types other than std::string
         auto value = std::string(arg);
-        if (pos_arg_iter->is_repeat()) {
-          auto vec= mapping_stack.back().find(pos_arg_iter->_name)->second;
-          std::any_cast<value_list&>(vec).push_back(value);
-        } else {
-          mapping_stack.back().emplace(pos_arg_iter->_name, value);
+        switch (get_action(*pos_arg_iter)) {
+          case arg_action::append:
+            {
+              auto vec= std::any_cast<value_list&>(mapping_stack.back().find(pos_arg_iter->_name)->second);
+              vec.push_back(value);
+              break;
+            }
+          case arg_action::prepend:
+            {
+              auto vec= std::any_cast<value_list&>(mapping_stack.back().find(pos_arg_iter->_name)->second);
+              vec.insert(vec.begin(), value);
+              break;
+            }
+          case arg_action::set:
+            mapping_stack.back().emplace(pos_arg_iter->_name, value);
+            break;
+          default:
+            ZEN_UNREACHABLE
         }
         ++pos_arg_count;
         if (pos_arg_count == pos_arg_iter->_max_count) {
