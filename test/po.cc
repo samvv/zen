@@ -4,24 +4,45 @@
 #include "zen/po.hpp"
 
 auto prog = zen::po::program("git", "A fake Git CLI tool")
-  .flag(zen::po::flag<bool>("bare"))
+  .arg(zen::po::arg<bool>("bare")
+      .flag("bare"))
   .subcommand(
     zen::po::command("remote", "Commands for remote management")
       .subcommand(
         zen::po::command("set-url")
-          .pos_arg("name")
-          .pos_arg("url"))
+          .arg(zen::po::arg("name").required())
+          .arg(zen::po::arg("url").required()))
       .subcommand(
         zen::po::command("get-url")
-          .flag(zen::po::flag<bool>("push", "Query push URLs rather than fetch URLs"))
-          .pos_arg("name"))
+          .arg(
+            zen::po::arg<bool>("push", "Query push URLs rather than fetch URLs")
+              .flag("push")
+          )
+          .arg(zen::po::arg("name").required()))
       .subcommand(
         zen::po::command("remove")
-          .pos_arg("name"))
+          .arg(zen::po::arg("name")))
     )
   .subcommand(
-      zen::po::command("commit", "Record changes to the repository")
-    );
+    zen::po::command("commit", "Record changes to the repository")
+      .arg(zen::po::arg("message")
+        .flag("message")
+        .flag('m'))
+  )
+  .subcommand(
+    zen::po::command("add", "Add files to the stage")
+      .arg(zen::po::arg("files").some())
+  );
+
+TEST(PoTest, StoresEmptyVectorWhenNoPosArgs) {
+  auto match = zen::po::program("test")
+    .arg(zen::po::arg("foo").many())
+    .parse_args({})
+    .unwrap();
+  ASSERT_TRUE(match.has("foo"));
+  auto files = *match.get<std::vector<std::string>>("foo");
+  ASSERT_EQ(files.size(), 0);
+}
 
 TEST(POTest, ReportsErrorWhenCommandNotFound) {
   auto res = prog.parse_args({ "foobar" });

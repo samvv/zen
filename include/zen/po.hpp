@@ -17,39 +17,114 @@
 
 ZEN_NAMESPACE_START
 
+// TODO should be placed somewhere else
+inline bool starts_with(const std::string_view& str, const std::string_view& needle) {
+  auto it1 = str.begin();
+  auto it2 = needle.begin();
+  for (;;) {
+    if (it2 == needle.end()) {
+      return true;
+    }
+    if (it1 == str.end() || *it1 != *it2) {
+      return false;
+    }
+    ++it1;
+    ++it2;
+  }
+}
+
 namespace po {
 
-  struct posarg {
-    std::string _name;
-    int _arity;
-  };
 
-  template<typename T>
-  class flag {
+  /**
+   * @internal
+   */
+  struct _arg_info {
 
     friend class command;
 
-    std::string name;
-    std::optional<std::string> description;
-    std::size_t min_count = 1;
-    std::size_t max_count = 1;
+    std::string _name;
+    const std::type_info& _type;
+    std::optional<std::string> _description;
+    std::vector<std::string> _flag_names;
+    std::size_t _min_count = 0;
+    std::size_t _max_count = 1;
+    std::optional<std::any> _default_value;
 
-  public:
+    std::string name() const {
+      return _name;
+    }
 
-    flag(std::string name, std::optional<std::string> description = {}):
-      name(name), description(description) {}
+    template<typename T2>
+    bool is() {
+      return typeid(T2) == _type;
+    }
 
-    flag& optional() {
-      min_count = 0;
+    bool is_repeat() const {
+      return _max_count > 1;
+    }
+
+    bool is_positional() const {
+      return _flag_names.empty();
+    }
+
+    _arg_info& min(std::size_t n) {
+      _min_count = n;
       return *this;
     }
 
-    flag& required() {
-      min_count = std::max(static_cast<std::size_t>(1), min_count);
+    _arg_info& max(std::size_t n) {
+      _max_count = n;
+      return *this;
+    }
+
+    _arg_info& some() {
+      _min_count = 1;
+      _max_count = ZEN_AUTO_SIZE;
+      return *this;
+    }
+
+    _arg_info& many() {
+      _min_count = 0;
+      _max_count = ZEN_AUTO_SIZE;
+      return *this;
+    }
+
+    _arg_info& optional() {
+      _min_count = 0;
+      return *this;
+    }
+
+    _arg_info& required() {
+      _min_count = std::max(static_cast<std::size_t>(1), _min_count);
+      return *this;
+    }
+
+    _arg_info& flag(char ch) {
+      _flag_names.push_back(std::string { 1, ch });
+      return *this;
+    }
+
+    _arg_info& flag(std::string str) {
+      _flag_names.push_back(str);
+      return *this;
+    }
+
+    _arg_info& default_value(std::any value) {
+      _default_value = value;
       return *this;
     }
 
   };
+
+  template<typename T = std::string>
+  _arg_info arg(std::string name, std::optional<std::string> description = {}) {
+    return _arg_info {
+      name,
+      typeid(T),
+      description,
+    };
+  }
 
   struct unrecognised_flag_error {
 
@@ -117,13 +192,13 @@ namespace po {
 
   struct missing_pos_arg_error {
 
-    posarg expected;
+    _arg_info expected;
 
-    missing_pos_arg_error(posarg expected):
+    missing_pos_arg_error(_arg_info expected):
       expected(expected) {}
 
     void display(std::ostream& out) const {
-      out << "a positional argument for " << expected._name << " was missing.";
+      out << "a positional argument for " << expected.name() << " was missing.";
     }
 
   };
@@ -277,9 +352,9 @@ namespace po {
 
     std::string _name;
     std::optional<std::string> _description;
-    std::unordered_map<std::string, _flag_info> _flags;
+    std::unordered_map<std::string, _arg_info> _flags;
+    std::vector<_arg_info> _pos_args;
     std::vector<command> _subcommands;
-    std::vector<posarg> _pos_args;
     bool _is_fallback = false;
     std::optional<command_callback_t> _callback;
 
@@ -293,9 +368,14 @@ namespace po {
       return *this;
     }
 
-    template<typename T>
-    command& flag(flag<T> fl) {
-      _flags.emplace(fl.name, _flag_info { fl.description, typeid(T), fl.min_count, fl.max_count });
+    command& arg(_arg_info x) {
+      if (x.is_positional()) {
+        _pos_args.push_back(x);
+      } else {
+        for (auto& name: x._flag_names) {
+          _flags.emplace(x._name, x);
+        }
+      }
       return *this;
     }
 
@@ -314,31 +394,13 @@ namespace po {
       return *this;
     }
 
-    command& pos_arg(std::string name, int arity = 1) {
-      _pos_args.push_back(posarg(name, arity));
-      return *this;
-    }
-
   };
-
-  inline bool starts_with(const std::string_view& str, const std::string_view& needle) {
-    auto it1 = str.begin();
-    auto it2 = needle.begin();
-    for (;;) {
-      if (it2 == needle.end()) {
-        return true;
-      }
-      if (it1 == str.end() || *it1 != *it2) {
-        return false;
-      }
-      ++it1;
-      ++it2;
-    }
-  }
 
   class program {
 
     command _command;
+
+    argmap fresh_argmap(const command& cmd);
 
   public:
 
@@ -355,14 +417,8 @@ namespace po {
       return *this;
     }
 
-    template<typename T>
-    program& flag(flag<T> fl) {
-      _command.flag(fl);
-      return *this;
-    }
-
-    program& pos_arg(std::string name, int arity = 1) {
-      _command.pos_arg(name, arity);
+    program& arg(_arg_info fl) {
+      _command.arg(fl);
       return *this;
     }
 

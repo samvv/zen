@@ -22,11 +22,23 @@ namespace po {
     { std::type_index(typeid(std::string)), [](auto x) { return right(x.empty() || x == "0" ? false : true); }  },
   };
 
+  using value_list = std::vector<std::string>;
+
+  argmap program::fresh_argmap(const command& cmd) {
+    argmap out;
+    for (auto& arg: cmd._pos_args) {
+      if (arg.is_repeat()) {
+        out.emplace(arg._name, value_list {});
+      }
+    }
+    return out;
+  }
+
   result<match> program::parse_args(std::vector<std::string_view> argv) {
 
     std::size_t i = 0; // index into argv
     std::vector<command*> command_stack { &_command };
-    std::vector<argmap> mapping_stack { argmap {} };
+    std::vector<argmap> mapping_stack { fresh_argmap(_command) };
     auto pos_arg_iter = command_stack.back()->_pos_args.begin();
     std::size_t pos_arg_count = 0; // Counts the amount of positional arguments.
 
@@ -36,7 +48,7 @@ namespace po {
   } \
   command_stack.push_back(&cmd); \
   pos_arg_iter = cmd._pos_args.begin(); \
-  mapping_stack.push_back(argmap {});
+  mapping_stack.push_back(fresh_argmap(cmd)); \
 
     for (; i < argv.size(); ) {
 
@@ -47,6 +59,8 @@ namespace po {
         return left(invalid_argument_error(arg));
 
       } else if (arg[0] == '-') {
+
+        // Process argument as a command-line flag
 
         std::size_t k = 1;
         if (arg.size() >= 2 && arg[1] == '-') {
@@ -71,7 +85,7 @@ namespace po {
           }
           auto& flag = iter->second;
           found = true;
-          bool needs_value = flag.type != typeid(bool);
+          bool needs_value = !flag.is<bool>();
           auto& map = mapping_stack[i];
           if (!needs_value) {
             map.emplace(name, true);
@@ -86,7 +100,7 @@ namespace po {
             }
             value_str = arg[i++];
           }
-          auto parser = parsers.find(flag.type);
+          auto parser = parsers.find(flag._type);
           if (parser == parsers.end()) {
             return left(unsupported_type_error(name));
           }
@@ -134,11 +148,17 @@ namespace po {
           }
         }
 
-        // Process any positional arguments
-        // TODO need to support n-ary arguments
-        mapping_stack.back().emplace(pos_arg_iter->_name, std::string(arg));
+        // Process as positional argument
+        // TODO support types other than std::string
+        auto value = std::string(arg);
+        if (pos_arg_iter->is_repeat()) {
+          auto vec= mapping_stack.back().find(pos_arg_iter->_name)->second;
+          std::any_cast<value_list&>(vec).push_back(value);
+        } else {
+          mapping_stack.back().emplace(pos_arg_iter->_name, value);
+        }
         ++pos_arg_count;
-        if (pos_arg_count == pos_arg_iter->_arity) {
+        if (pos_arg_count == pos_arg_iter->_max_count) {
           ++pos_arg_iter;
           pos_arg_count = 0;
         }
