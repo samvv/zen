@@ -61,7 +61,7 @@ Want your project here? Open up a pull request and we'll gladly accept it!
 
 ## Installation and Usage 
 
-> [!CAUTION]
+> [!WARNING]
 >
 > These libraries are experimental. They require a modern C++ compiler that
 > supports at least C++20. The API may break regularly with the release of new
