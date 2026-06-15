@@ -5,7 +5,8 @@
 
 auto prog = zen::po::program("git", "A fake Git CLI tool")
   .arg(zen::po::arg<bool>("bare")
-      .flag("bare"))
+      .flag("bare")
+      .action(zen::po::arg_action::set_true))
   .subcommand(
     zen::po::command("remote", "Commands for remote management")
       .subcommand(
@@ -17,6 +18,7 @@ auto prog = zen::po::program("git", "A fake Git CLI tool")
           .arg(
             zen::po::arg<bool>("push", "Query push URLs rather than fetch URLs")
               .flag("push")
+              .action(zen::po::arg_action::set_true)
           )
           .arg(zen::po::arg("name").required()))
       .subcommand(
@@ -53,7 +55,9 @@ TEST(POTest, ReportsErrorWhenCommandNotFound) {
   ASSERT_EQ(real_err.actual, "foobar");
 }
 
-TEST(POTest, ConvertsFlagToBool) {
+TEST(POTest, ConvertsFlagPresenceToBool) {
+  auto prog = zen::po::program("test")
+    .arg(zen::po::arg<bool>("bare").flag());
   auto match = prog
     .parse_args({ "--bare" })
     .unwrap();
@@ -64,17 +68,38 @@ TEST(POTest, ConvertsFlagToBool) {
   ASSERT_EQ(*bare, true);
 }
 
-TEST(POTest, CanParseSubcommandsNoPositional) {
-  auto match = prog
-    .parse_args({ "remote", "get-url" })
-    .unwrap();
+TEST(POTest, AssignsToRightmostArg) {
+  auto prog = zen::po::program("test")
+    .arg(zen::po::arg("bla").flag())
+    .subcommand(zen::po::command("foo")
+      .arg(zen::po::arg("bla").flag())
+      .subcommand(zen::po::command("bar")
+        .arg(zen::po::arg("bla").flag())
+      )
+    );
+  auto match = prog.parse_args({ "foo", "bar", "--bla=foobar" }).unwrap();
   ASSERT_TRUE(match.has_subcommand());
-  auto [name, remote] = match.subcommand();
-  ASSERT_EQ(name, "remote");
-  ASSERT_TRUE(remote.has_subcommand());
-  auto [name2, geturl] = remote.subcommand();
-  ASSERT_FALSE(geturl.has_subcommand());
-  ASSERT_EQ(geturl.count(), 0);
+  auto [foo_name, foo_match] = match.subcommand();
+  ASSERT_TRUE(foo_match.has_subcommand());
+  auto [bar_name, bar_match] = foo_match.subcommand();
+  ASSERT_EQ(bar_match.count(), 1);
+  auto test = bar_match.get<std::string>("bla");
+  ASSERT_EQ(*test, "foobar");
+}
+
+TEST(POTest, CanParseSubcommandsNoPositional) {
+  auto prog = zen::po::program("test")
+    .subcommand(zen::po::command("foo")
+      .subcommand(zen::po::command("bar"))
+    );
+  auto match = prog.parse_args({ "foo", "bar" }).unwrap();
+  ASSERT_TRUE(match.has_subcommand());
+  auto [name, sub1] = match.subcommand();
+  ASSERT_EQ(name, "foo");
+  ASSERT_TRUE(sub1.has_subcommand());
+  auto [name2, sub2] = sub1.subcommand();
+  ASSERT_FALSE(sub2.has_subcommand());
+  ASSERT_EQ(sub2.count(), 0);
 }
 
 TEST(POTest, FailsOnExcessPositional) {
@@ -86,27 +111,31 @@ TEST(POTest, FailsOnExcessPositional) {
 TEST(POTest, ParsesToplevelFlagBeforeSubcommand) {
 
   auto match = prog
-    .parse_args({ "remote", "--bare", "set-url", "foobar" })
+    .parse_args({ "remote", "--bare", "get-url", "foobar" })
     .unwrap();
 
   ASSERT_TRUE(match.has_subcommand());
   auto [name, remote] = match.subcommand();
   ASSERT_EQ(name, "remote");
 
-  ASSERT_TRUE(match.get<bool>("bare"));
+  auto bare = match.get<bool>("bare");
+  ASSERT_TRUE(bare.has_value());
+  ASSERT_EQ(*bare, true);
 }
 
 TEST(POTest, ParsesToplevelFlagAfterSubcommand) {
 
   auto match = prog
-    .parse_args({ "remote", "set-url", "foobar", "--bare" })
+    .parse_args({ "remote", "get-url", "foobar", "--bare" })
     .unwrap();
 
   ASSERT_TRUE(match.has_subcommand());
   auto [name, remote] = match.subcommand();
   ASSERT_EQ(name, "remote");
 
-  ASSERT_TRUE(match.get<bool>("bare"));
+  auto bare = match.get<bool>("bare");
+  ASSERT_TRUE(bare.has_value());
+  ASSERT_EQ(*bare, true);
 }
 
 TEST(POTest, CanParseSubcommandsEndingPositional)  {

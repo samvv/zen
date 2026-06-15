@@ -70,6 +70,10 @@ namespace po {
       return typeid(T2) == _type;
     }
 
+    bool is_required() const {
+      return _min_count > 0;
+    }
+
     bool is_repeat() const {
       return _max_count > 1;
     }
@@ -145,6 +149,17 @@ namespace po {
       description,
     };
   }
+
+  struct argument_missing_error {
+
+    std::string command_name;
+    std::string arg_name;
+
+    void display(std::ostream& out) const {
+      out << "the argument '" << arg_name << "' is required but was not provided.";
+    }
+
+  };
 
   struct unrecognised_flag_error {
 
@@ -232,7 +247,8 @@ namespace po {
       excess_positional_arg_error,
       flag_value_missing_error,
       unsupported_type_error,
-      unrecognised_flag_error
+      unrecognised_flag_error,
+      argument_missing_error
     >;
 
     storage_t storage;
@@ -390,6 +406,16 @@ namespace po {
     }
 
     command& arg(_arg_info x) {
+
+      // Fill in any missing information
+      if (!x._action) {
+        if (x._max_count > 1) {
+          x._action = arg_action::append;
+        } else {
+          x._action = arg_action::set;
+        }
+      }
+
       _args.push_back(x);
       if (x.is_positional()) {
         _pos_args.push_back(x);
@@ -398,6 +424,7 @@ namespace po {
           _flags.emplace(x._name, x);
         }
       }
+
       return *this;
     }
 

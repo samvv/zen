@@ -1,7 +1,8 @@
 
-#include "zen/po.hpp"
 #include "zen/config.hpp"
 #include "zen/either.hpp"
+#include "zen/iterator_range.hpp"
+#include "zen/po.hpp"
 
 ZEN_NAMESPACE_START
 
@@ -31,26 +32,10 @@ namespace po {
 
   using value_list = std::vector<std::string>;
 
-  static arg_action get_action(const _arg_info& arg) {
-    if (arg._action) {
-      return *arg._action;
-    }
-    if (arg._max_count > 1) {
-      return arg_action::append;
-    }
-    return arg_action::set;
-  }
-
   argmap program::fresh_argmap(const command& cmd) {
     argmap out;
     for (auto& arg: cmd._args) {
-      switch (get_action(arg)) {
-        case arg_action::set_true:
-          out.emplace(arg._name, false);
-          break;
-        case arg_action::set_false:
-          out.emplace(arg._name, true);
-          break;
+      switch (*arg._action) {
         case arg_action::append:
         case arg_action::prepend:
           out.emplace(arg._name, value_list {});
@@ -115,7 +100,7 @@ namespace po {
           bool needs_value = !flag.is<bool>();
           auto& map = mapping_stack[j];
           if (!needs_value) {
-            map.insert_or_assign(name, true);
+            map.emplace(name, true);
             break;
           }
           std::string value_str;
@@ -179,7 +164,7 @@ namespace po {
         // Process as positional argument
         // TODO support types other than std::string
         auto value = std::string(arg);
-        switch (get_action(*pos_arg_iter)) {
+        switch (*pos_arg_iter->_action) {
           case arg_action::append:
             {
               auto vec= std::any_cast<value_list&>(mapping_stack.back().find(pos_arg_iter->_name)->second);
@@ -207,6 +192,29 @@ namespace po {
       }
 
 next:;
+    }
+
+    for (auto [cmd, map]: zip(command_stack, mapping_stack)) {
+      for (auto arg: cmd->_args) {
+        switch (*arg._action) {
+          case arg_action::set:
+            if (arg.is_required() && !map.count(arg._name)) {
+              return left(argument_missing_error {
+                  cmd->_name,
+                  arg._name,
+              });
+            }
+            break;
+          case arg_action::set_true:
+            map.emplace(arg._name, false);
+            break;
+          case arg_action::set_false:
+            map.emplace(arg._name, true);
+            break;
+          default:
+            break;
+        }
+      }
     }
 
     std::optional<std::pair<std::string, std::unique_ptr<match>>> sub;
