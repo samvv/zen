@@ -7,27 +7,79 @@ The Zen C++ libraries are a set of C++ headers and sources that augment the C++
 standard library. The libraries try to fill missing pieces in the existing C++
 ecosystem, based on ideas taken from Haskell and Rust.
 
-⚠️🧪 These libraries are experimental. They require a modern C++ compiler that
-supports at least C++20. The API may break regularly with the release of new
-versions. If you plan to make use of them right now, expect to refactor your
-code regularly.
+## Examples
 
-### What are the dangers?
+### Parsing program arguments
 
- - _Not all control flow paths have been tested._ We simply don't have the
-   scale to add test cases for all possible ways in which this library may be
-   used. You are encouraged, however, to use this library and report any issues
-   you find in the issue tracker. The more people use this library, the more
-   stable it will get.
- - _New updates might need a small refactor of your code._ For example, a
-   better `zen::either<L, R>` might require you to use strucutred binding
-   declarations instead of using the dereferce operator. Only use this library
-   if your team has enough bandwidth to keep in sync.
+```cpp
+auto prog = zen::po::program("git", "A fake Git CLI tool")
+  .arg(zen::po::arg<bool>("bare", "Treat the repository as a bare repository")
+      .flag()
+      .action(zen::po::arg_action::set_true))
+  .subcommand(
+    zen::po::command("remote", "Commands for remote management")
+      .subcommand(
+        zen::po::command("set-url", "Change the URL of an existing remote")
+          .arg(zen::po::arg("name", "The name of the remote").required())
+          .arg(zen::po::arg("url", "The new URL to use").required())
+      )
+      .subcommand(
+        zen::po::command("get-url")
+          .arg(zen::po::arg<bool>("push", "Query push URLs rather than fetch URLs")
+            .flag()
+            .action(zen::po::arg_action::set_true))
+          .arg(zen::po::arg("name", "The name of the remote").required())
+      )
+      .subcommand(
+        zen::po::command("remove")
+          .arg(zen::po::arg("name", "The name of the remote").required())
+      )
+    )
+  .subcommand(
+    zen::po::command("commit", "Record changes to the repository")
+      .arg(zen::po::arg("message")
+        .flag("message")
+        .flag('m'))
+  )
+  .subcommand(
+    zen::po::command("add", "Add files to the stage")
+      .arg(zen::po::arg("files").some())
+  );
 
-Use this library only if you feel like these drawbacks are justified for the
-project you're working on.
+auto match = prog
+  .parse_args({ "remote", "get-url", "foobar" })
+  .unwrap();
+```
+
+## In The Wild
+
+Zen is currently being used in the following projects:
+
+ - [The Bolt compiler][bolt]
+
+Want your project here? Open up a pull request and we'll gladly accept it!
 
 ## Installation and Usage 
+
+> [!CAUTION]
+>
+> These libraries are experimental. They require a modern C++ compiler that
+> supports at least C++20. The API may break regularly with the release of new
+> versions. If you plan to make use of them right now, expect to refactor your
+> code regularly.
+>
+>  - _Not all control flow paths have been tested._ We simply don't have the
+>    scale to add test cases for all possible ways in which this library may be
+>    used. You are encouraged, however, to use this library and report any issues
+>    you find in the issue tracker. The more people use this library, the more
+>    stable it will get.
+>  - _New updates might need a small refactor of your code._ For example, a
+>    better `zen::either<L, R>` might require you to use strucutred binding
+>    declarations instead of using the dereferce operator. Only use this library
+>    if your team has enough bandwidth to keep in sync.
+>
+> Use this library only if you feel like these drawbacks are justified for the
+> project you're working on.
 
 We support Meson and CMake. Currently, the preferred method for using these
 libraries is by downloading a recent tarball of the repository's source and
@@ -91,4 +143,4 @@ See [the LICENSE file][3] for more information.
 [1]: https://samvv.github.io/zen/
 [2]: http://www.doxygen.nl/
 [3]: https://github.com/samvv/zen/blob/master/LICENSE
-
+[bolt]: https://github.com/boltlang/bolt
