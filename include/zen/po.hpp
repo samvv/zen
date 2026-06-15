@@ -110,6 +110,11 @@ namespace po {
       return *this;
     }
 
+    _arg_info& flag() {
+      _flag_names.push_back(_name);
+      return *this;
+    }
+
     _arg_info& flag(char ch) {
       _flag_names.push_back(std::string { 1, ch });
       return *this;
