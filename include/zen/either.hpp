@@ -94,7 +94,6 @@
 #ifndef ZEN_EITHER_HPP
 #define ZEN_EITHER_HPP
 
-#include <condition_variable>
 #include <type_traits>
 #include <utility>
 
