@@ -24,11 +24,32 @@ namespace po {
 
   using value_list = std::vector<std::string>;
 
+  static arg_action get_action(const _arg_info& arg) {
+    if (arg._action) {
+      return *arg._action;
+    }
+    if (arg._max_count > 1) {
+      return arg_action::append;
+    }
+    return arg_action::set;
+  }
+
   argmap program::fresh_argmap(const command& cmd) {
     argmap out;
-    for (auto& arg: cmd._pos_args) {
-      if (arg.is_repeat()) {
-        out.emplace(arg._name, value_list {});
+    for (auto& arg: cmd._args) {
+      switch (get_action(arg)) {
+        case arg_action::set_true:
+          out.emplace(arg._name, false);
+          break;
+        case arg_action::set_false:
+          out.emplace(arg._name, true);
+          break;
+        case arg_action::append:
+        case arg_action::prepend:
+          out.emplace(arg._name, value_list {});
+          break;
+        default:
+          break;
       }
     }
     return out;

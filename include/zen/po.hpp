@@ -35,6 +35,14 @@ inline bool starts_with(const std::string_view& str, const std::string_view& nee
 
 namespace po {
 
+  enum class arg_action {
+    set,
+    set_true,
+    set_false,
+    append,
+    prepend,
+    count,
+  };
 
   /**
    * @internal
@@ -46,6 +54,8 @@ namespace po {
     std::string _name;
     const std::type_info& _type;
     std::optional<std::string> _description;
+    std::optional<arg_action> _action;
+
     std::vector<std::string> _flag_names;
     std::size_t _min_count = 0;
     std::size_t _max_count = 1;
@@ -112,6 +122,11 @@ namespace po {
 
     _arg_info& default_value(std::any value) {
       _default_value = value;
+      return *this;
+    }
+
+    _arg_info& action(arg_action action) {
+      _action = action;
       return *this;
     }
 
@@ -352,6 +367,7 @@ namespace po {
 
     std::string _name;
     std::optional<std::string> _description;
+    std::vector<_arg_info> _args;
     std::unordered_map<std::string, _arg_info> _flags;
     std::vector<_arg_info> _pos_args;
     std::vector<command> _subcommands;
@@ -369,6 +385,7 @@ namespace po {
     }
 
     command& arg(_arg_info x) {
+      _args.push_back(x);
       if (x.is_positional()) {
         _pos_args.push_back(x);
       } else {
@@ -379,7 +396,7 @@ namespace po {
       return *this;
     }
 
-    command& action(command_callback_t callback) {
+    command& callback(command_callback_t callback) {
       _callback = callback;
       return *this;
     }
