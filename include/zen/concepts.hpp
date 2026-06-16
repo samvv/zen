@@ -3,8 +3,9 @@
 
 #include <concepts>
 #include <iterator>
-#include <type_traits>
 #include <memory>
+#include <type_traits>
+#include <vector>
 
 #include "zen/config.hpp"
 #include "zen/compat.hpp"
@@ -49,6 +50,15 @@ struct is_pointer<std::shared_ptr<T>> : std::true_type {};
 
 template<typename T>
 concept pointer = is_pointer<T>::value;
+
+template <typename T>
+struct is_std_vector_helper : std::false_type {};
+
+template <typename T, typename Allocator>
+struct is_std_vector_helper<std::vector<T, Allocator>> : std::true_type {};
+
+template <typename T>
+concept std_vector = is_std_vector_helper<std::remove_cvref_t<T>>::value;
 
 ZEN_NAMESPACE_END
 
