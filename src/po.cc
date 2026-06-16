@@ -17,19 +17,49 @@ namespace po {
     return parse_args(args);
   }
 
-  using parser_t = std::function<result<std::any>(const std::string&)>;
+  using parse_fn_t = std::function<result<std::any>(const std::string_view&)>;
 
-  std::unordered_map<std::type_index, parser_t> parsers {
-    {
-      std::type_index(typeid(std::string)),
-      [](auto& x) { return right(x); }  },
-    {
-      std::type_index(typeid(bool)),
-      [](auto& x) { return right(x.empty() || x == "0" ? false : true); }
-    },
+  template<typename T>
+  std::pair<std::type_index, parse_fn_t> make_handler(parse_fn_t parse) {
+    return {
+    std::type_index(typeid(T)),
+    parse,
+    };
+  }
+
+  static result<std::string> parse_string(const std::string_view& text) {
+    return right(text);
+  }
+
+  static result<bool> parse_bool(const std::string_view& text) {
+    // FIXME only allow '0' and '1'?
+    return right(text.empty() || text == "0" ? false : true);
+  }
+
+  static result<int> parse_int(const std::string_view& text) {
+    if (text.empty()) {
+      return left(invalid_number_format_error { std::string(text), text.data() });
+    }
+    char* endptr = nullptr;
+    errno = 0;
+    long l = std::strtol(text.data(), &endptr, 10);
+    if (*endptr != '\0') {
+      return left(invalid_number_format_error { std::string(text), endptr });
+    }
+    if ((errno == ERANGE && l == std::numeric_limits<long>::max()) || l > std::numeric_limits<int>::max()) {
+      return left(number_too_large_error { l, std::numeric_limits<int>::max() });
+    }
+    if ((errno == ERANGE && l == std::numeric_limits<long>::min()) || l < std::numeric_limits<int>::min()) {
+        return left(number_too_small_error { l, std::numeric_limits<int>::min() });
+    }
+    return right(l);
+  }
+
+  std::unordered_map<std::type_index, parse_fn_t> type_descs {
+    make_handler<std::string>(parse_string),
+    make_handler<bool>(parse_bool),
+    make_handler<int>(parse_int),
   };
-
-  using value_list = std::vector<std::any>;
 
   argmap program::fresh_argmap(const command& cmd) {
     argmap out;
@@ -37,7 +67,7 @@ namespace po {
       switch (*arg._action) {
         case arg_action::append:
         case arg_action::prepend:
-          out.emplace(arg._name, value_list {});
+          out.emplace(arg._name, std::vector<std::any> {});
           break;
         default:
           break;
@@ -47,8 +77,8 @@ namespace po {
   }
 
   result<std::any> program::parse_value(const std::string_view& text, const _arg_info& arg) {
-    auto parser = parsers.find(arg._type);
-    if (parser == parsers.end()) {
+    auto parser = type_descs.find(arg._type);
+    if (parser == type_descs.end()) {
       return left(unsupported_type_error(arg._name));
     }
     return parser->second(std::string(text));
@@ -193,14 +223,14 @@ namespace po {
         switch (*pos_arg_iter->_action) {
           case arg_action::append:
             {
-              auto vec= std::any_cast<value_list&>(map.find(pos_arg_iter->_name)->second);
-              vec.push_back(*result);
+              auto& v = std::any_cast<std::vector<std::any>&>(map.find(pos_arg_iter->_name)->second);
+              v.push_back(*result);
               break;
             }
           case arg_action::prepend:
             {
-              auto vec= std::any_cast<value_list&>(map.find(pos_arg_iter->_name)->second);
-              vec.insert(vec.begin(), *result);
+              auto& v = std::any_cast<std::vector<std::any>&>(map.find(pos_arg_iter->_name)->second);
+              v.insert(v.begin(), *result);
               break;
             }
           case arg_action::set:
@@ -209,7 +239,6 @@ namespace po {
                   pos_arg_iter->_name,
               });
             }
-
             map.emplace(pos_arg_iter->_name, *result);
             break;
           default:

@@ -36,15 +36,52 @@ auto prog = zen::po::program("git", "A fake Git CLI tool")
       .arg(zen::po::arg("files").some())
   );
 
-TEST(PoTest, StoresEmptyVectorWhenNoPosArgs) {
+TEST(PoTest, ManyStoresEmptyVectorWhenNoPosArgs) {
   auto match = zen::po::program("test")
     .arg(zen::po::arg("foo").many())
     .parse_args({})
     .unwrap();
   ASSERT_TRUE(match.has("foo"));
-  auto files = *match.get<std::vector<std::any>>("foo");
+  auto files = match.get<std::vector<std::string>>("foo");
   ASSERT_EQ(files.size(), 0);
 }
+
+TEST(PoTest, ManyStoresVectorOneWhenOnePosArg) {
+  auto match = zen::po::program("test")
+    .arg(zen::po::arg("foo").many())
+    .parse_args({ "blabla" })
+    .unwrap();
+  ASSERT_TRUE(match.has("foo"));
+  auto files = match.get<std::vector<std::string>>("foo");
+  ASSERT_EQ(files.size(), 1);
+  ASSERT_EQ(files[0], "blabla");
+}
+
+TEST(PoTest, ManyStoresVectorTwoWhenTwoPosArg) {
+  auto match = zen::po::program("test")
+    .arg(zen::po::arg("foo").many())
+    .parse_args({ "blabla", "testtest" })
+    .unwrap();
+  ASSERT_TRUE(match.has("foo"));
+  auto files = match.get<std::vector<std::string>>("foo");
+  ASSERT_EQ(files.size(), 2);
+  ASSERT_EQ(files[0], "blabla");
+  ASSERT_EQ(files[1], "testtest");
+}
+
+TEST(PoTest, ManyStoresVectorThreeWhenTwoPosArg) {
+  auto match = zen::po::program("test")
+    .arg(zen::po::arg("foo").many())
+    .parse_args({ "blabla", "testtest", "foobar" })
+    .unwrap();
+  ASSERT_TRUE(match.has("foo"));
+  auto files = match.get<std::vector<std::string>>("foo");
+  ASSERT_EQ(files.size(), 3);
+  ASSERT_EQ(files[0], "blabla");
+  ASSERT_EQ(files[1], "testtest");
+  ASSERT_EQ(files[2], "foobar");
+}
+
 
 TEST(POTest, ReportsErrorWhenCommandNotFound) {
   auto res = prog.parse_args({ "foobar" });
@@ -64,8 +101,7 @@ TEST(POTest, SetTrueFlagMissing) {
   ASSERT_EQ(match.count(), 1);
   ASSERT_TRUE(match.has("foobar"));
   auto foobar = match.get<bool>("foobar");
-  ASSERT_TRUE(foobar.has_value());
-  ASSERT_EQ(*foobar, false);
+  ASSERT_EQ(foobar, false);
 }
 
 TEST(POTest, SetTrueFlagPresent) {
@@ -77,8 +113,7 @@ TEST(POTest, SetTrueFlagPresent) {
   ASSERT_EQ(match.count(), 1);
   ASSERT_TRUE(match.has("foobar"));
   auto foobar = match.get<bool>("foobar");
-  ASSERT_TRUE(foobar.has_value());
-  ASSERT_EQ(*foobar, true);
+  ASSERT_EQ(foobar, true);
 }
 
 TEST(POTest, SetFalseFlagMissing) {
@@ -90,8 +125,7 @@ TEST(POTest, SetFalseFlagMissing) {
   ASSERT_EQ(match.count(), 1);
   ASSERT_TRUE(match.has("foobar"));
   auto foobar = match.get<bool>("foobar");
-  ASSERT_TRUE(foobar.has_value());
-  ASSERT_EQ(*foobar, true);
+  ASSERT_EQ(foobar, true);
 }
 
 TEST(POTest, SetFalseFlagPresent) {
@@ -103,8 +137,7 @@ TEST(POTest, SetFalseFlagPresent) {
   ASSERT_EQ(match.count(), 1);
   ASSERT_TRUE(match.has("foobar"));
   auto foobar = match.get<bool>("foobar");
-  ASSERT_TRUE(foobar.has_value());
-  ASSERT_EQ(*foobar, false);
+  ASSERT_EQ(foobar, false);
 }
 
 TEST(POTest, AssignsToRightmostArgOnOverlap) {
@@ -122,8 +155,9 @@ TEST(POTest, AssignsToRightmostArgOnOverlap) {
   ASSERT_TRUE(foo_match.has_subcommand());
   auto [bar_name, bar_match] = foo_match.subcommand();
   ASSERT_EQ(bar_match.count(), 1);
-  auto test = bar_match.get<std::string>("bla");
-  ASSERT_EQ(*test, "foobar");
+  ASSERT_TRUE(bar_match.has("bla"));
+  auto bla = bar_match.get<std::string>("bla");
+  ASSERT_EQ(bla, "foobar");
 }
 
 TEST(POTest, CanParseSubcommandsNoPositional) {
@@ -153,7 +187,7 @@ TEST(POTest, CanParseSubcommandsPositionalMixed) {
   ASSERT_EQ(name, "foo");
   ASSERT_EQ(sub1.count(), 1);
   ASSERT_TRUE(sub1.has("pos"));
-  ASSERT_EQ(*sub1.get<std::string>("pos"), "blabla");
+  ASSERT_EQ(sub1.get<std::string>("pos"), "blabla");
   ASSERT_TRUE(sub1.has_subcommand());
   auto [name2, sub2] = sub1.subcommand();
   ASSERT_EQ(sub2.count(), 0);
@@ -176,9 +210,9 @@ TEST(POTest, ParsesToplevelFlagBeforeSubcommand) {
   auto [name, remote] = match.subcommand();
   ASSERT_EQ(name, "remote");
 
+  ASSERT_TRUE(match.has("bare"));
   auto bare = match.get<bool>("bare");
-  ASSERT_TRUE(bare.has_value());
-  ASSERT_EQ(*bare, true);
+  ASSERT_EQ(bare, true);
 }
 
 TEST(POTest, ParsesToplevelFlagAfterSubcommand) {
@@ -191,9 +225,9 @@ TEST(POTest, ParsesToplevelFlagAfterSubcommand) {
   auto [name, remote] = match.subcommand();
   ASSERT_EQ(name, "remote");
 
+  ASSERT_TRUE(match.has("bare"));
   auto bare = match.get<bool>("bare");
-  ASSERT_TRUE(bare.has_value());
-  ASSERT_EQ(*bare, true);
+  ASSERT_EQ(bare, true);
 }
 
 TEST(POTest, CanParseSubcommandsEndingPositional)  {
@@ -210,6 +244,7 @@ TEST(POTest, CanParseSubcommandsEndingPositional)  {
   ASSERT_EQ(name2, "get-url");
   ASSERT_FALSE(geturl.has_subcommand());
   ASSERT_EQ(geturl.count(), 1);
+  ASSERT_TRUE(geturl.has("name"));
   ASSERT_EQ(geturl.get<std::string>("name"), "foobar");
 }
 

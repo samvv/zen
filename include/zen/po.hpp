@@ -14,6 +14,7 @@
 
 #include "zen/config.hpp"
 #include "zen/either.hpp"
+#include "zen/concepts.hpp"
 
 ZEN_NAMESPACE_START
 
@@ -150,6 +151,21 @@ namespace po {
     };
   }
 
+  struct invalid_number_format_error {
+    std::string text;
+    const char* ptr;
+  };
+
+  struct number_too_small_error {
+    long num;
+    long min;
+  };
+
+  struct number_too_large_error {
+    long num;
+    long max;
+  };
+
   struct argument_already_specified_error {
 
     std::string arg_name;
@@ -259,7 +275,10 @@ namespace po {
       unsupported_type_error,
       unrecognised_flag_error,
       argument_missing_error,
-      argument_already_specified_error
+      argument_already_specified_error,
+      invalid_number_format_error,
+      number_too_large_error,
+      number_too_small_error
     >;
 
     storage_t storage;
@@ -359,12 +378,22 @@ namespace po {
     }
 
     template<typename T>
-    std::optional<T> get(const std::string& name) const {
-      auto match = values.find(name);
-      if  (match == values.end()) {
-        return {};
+    T get(const std::string& name) const {
+      auto it = values.find(name);
+      ZEN_DEBUG_ASSERT(it != values.end());
+      return std::any_cast<T>(it->second);
+    }
+
+    template<typename T>
+    T get(const std::string& name) const requires (std_vector<T>) {
+      T out;
+      auto it = values.find(name);
+      ZEN_DEBUG_ASSERT(it != values.end());
+      auto& in = std::any_cast<const std::vector<std::any>&>(it->second);
+      for (auto& el: in) {
+        out.push_back(std::any_cast<typename T::value_type>(el));
       }
-      return std::any_cast<T>(match->second);
+      return out;
     }
 
     bool has_subcommand() const noexcept {
